@@ -7,7 +7,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 import Home from "./pages/Home";
-import Reports from "./pages/Reports";
+import Store from "./pages/Reports";
 import ProductsPage from "./pages/ProductsPage";
 import Orders from "./pages/Orders";
 import Login from "./pages/Login";
@@ -33,12 +33,14 @@ export default function App() {
   return (
     <div className="app-shell">
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        
+
         {!hideLayout && <Header />}
 
         <main className="main">
           <div className="container">
             <Routes>
+
+              {/* Home — All logged users */}
               <Route
                 path="/"
                 element={
@@ -48,68 +50,73 @@ export default function App() {
                 }
               />
 
+              {/* Store — All logged users */}
               <Route
-                path="/reports"
+                path="/store"
                 element={
                   <ProtectedRoute>
-                    <Reports />
+                    <Store />
                   </ProtectedRoute>
                 }
               />
 
-             
+              {/* Category — All logged users */}
               <Route
                 path="/category/:slug"
                 element={
                   <ProtectedRoute>
-                    <Reports />
+                    <Store />
                   </ProtectedRoute>
                 }
               />
 
-              
+              {/* Manage — ADMIN ONLY */}
               <Route
-                path="/products"
+                path="/manage"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="admin">
                     <ProductsPage />
                   </ProtectedRoute>
                 }
               />
+              
+              {/* User pages */}
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute requiredRole="user">
+                    <Orders />
+                  </ProtectedRoute>
+                }
+              />
 
-              <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-
-            
               <Route
                 path="/wishlist"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="user">
                     <Wishlist />
                   </ProtectedRoute>
                 }
               />
 
-         
               <Route
                 path="/cart"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="user">
                     <Cart />
                   </ProtectedRoute>
                 }
               />
 
-         
               <Route
                 path="/track-order"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole="user">
                     <TrackOrder />
                   </ProtectedRoute>
                 }
               />
 
-           
               <Route
                 path="/product/:id"
                 element={
@@ -119,7 +126,7 @@ export default function App() {
                 }
               />
 
-             
+              {/* Auth Pages */}
               <Route
                 path="/login"
                 element={
@@ -128,6 +135,7 @@ export default function App() {
                   </PublicRoute>
                 }
               />
+
               <Route
                 path="/register"
                 element={
@@ -137,11 +145,11 @@ export default function App() {
                 }
               />
 
-           
               <Route
                 path="*"
                 element={<div style={{ padding: 40 }}>Page not found</div>}
               />
+
             </Routes>
           </div>
         </main>

@@ -4,13 +4,6 @@ import { useAuth } from "./AuthProvider";
 import { useShop } from "../context/ShopContext";
 import Sidebar from "./Sidebar";
 
-const headerCategories = [
-  { to: "/", label: "Home" },
-  { to: "/reports", label: "Store" },
-  { to: "/products", label: "Manage" },
-  { to: "/settings", label: "Orders" },
-];
-
 export default function Header() {
   const { user, logout } = useAuth();
   const { searchTerm, setSearchTerm, wishlist, cart } = useShop();
@@ -21,7 +14,7 @@ export default function Header() {
   const handleGlobalSearch = (value) => {
     setSearchTerm(value);
     if (value.trim().length > 0) {
-      navigate("/reports");
+      navigate("/store");
     }
   };
 
@@ -29,11 +22,12 @@ export default function Header() {
     <>
       <header className="header">
         <div className="header-inner container">
+          
+          {/* LEFT SIDE */}
           <div className="header-left">
             <button
               className="hamburger-btn"
               onClick={() => setOpenSidebar(true)}
-              style={{ display: "block" }}
             >
               ☰
             </button>
@@ -43,21 +37,36 @@ export default function Header() {
             </div>
           </div>
 
+          {/* CENTER NAVIGATION */}
           <div className="header-center">
             <nav className="header-cats">
-              {headerCategories.map((c) => (
-                <NavLink
-                  key={c.to}
-                  to={c.to}
-                  className={({ isActive }) =>
-                    "header-cat" + (isActive ? " active" : "")
-                  }
-                >
-                  {c.label}
+
+              {/* HOME – visible to all logged users */}
+              <NavLink to="/" className="header-cat">
+                Home
+              </NavLink>
+
+              {/* STORE – visible to all logged users */}
+              <NavLink to="/store" className="header-cat">
+                Store
+              </NavLink>
+
+              {/* MANAGE – only admin */}
+              {user?.role === "admin" && (
+                <NavLink to="/manage" className="header-cat">
+                  Manage
                 </NavLink>
-              ))}
+              )}
+
+              {/* ORDERS – only normal user */}
+              {user?.role === "user" && (
+                <NavLink to="/orders" className="header-cat">
+                  Orders
+                </NavLink>
+              )}
             </nav>
 
+            {/* SEARCH BOX */}
             <div className="search-small">
               <input
                 type="text"
@@ -74,6 +83,7 @@ export default function Header() {
             </div>
           </div>
 
+          {/* RIGHT SIDE ICONS */}
           <div className="header-right">
             <button
               className="icon-btn"
@@ -94,6 +104,7 @@ export default function Header() {
               🛒 <span className="badge">{cart.length}</span>
             </div>
 
+            {/* AUTH BUTTONS */}
             {user ? (
               <>
                 <button
@@ -122,11 +133,12 @@ export default function Header() {
               </>
             )}
           </div>
+
         </div>
       </header>
 
+      {/* SIDEBAR */}
       <Sidebar open={openSidebar} onClose={() => setOpenSidebar(false)} />
     </>
   );
 }
-

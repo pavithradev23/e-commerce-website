@@ -69,7 +69,7 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      
+     
       <div style={{ marginBottom: 10 }}>
         <button
           className="icon-btn"

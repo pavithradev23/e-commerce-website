@@ -142,9 +142,7 @@ export default function Reports() {
             : `Store — ${categorySlug}`}
         </h2>
 
-        <button className="icon-btn" onClick={() => setEditing({})}>
-          + Add Product
-        </button>
+       
       </div>
 
       <div className={`product-form-container ${editing ? "show" : ""}`}>
