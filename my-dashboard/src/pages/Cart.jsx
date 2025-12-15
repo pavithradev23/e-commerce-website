@@ -225,22 +225,23 @@ export default function Cart() {
             <p>Your order has been placed successfully 🎉</p>
 
             <button
-              onClick={() => {
-                setShowSuccess(false);
-                navigate("/reports");
-              }}
-              style={{
-                marginTop: 15,
-                padding: "10px 20px",
-                background: "#000",
-                color: "#fff",
-                borderRadius: 6,
-                cursor: "pointer",
-                border: "none",
-              }}
-            >
-              Go Shopping
-            </button>
+  onClick={() => {
+    setShowSuccess(false);
+    navigate("/store"); // ✅ correct route
+  }}
+  style={{
+    marginTop: 15,
+    padding: "10px 20px",
+    background: "#000",
+    color: "#fff",
+    borderRadius: 6,
+    cursor: "pointer",
+    border: "none",
+  }}
+>
+  Go Shopping
+</button>
+
           </div>
         </div>
       )}

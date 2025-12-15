@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 import { useShop } from "../context/ShopContext";
-import Sidebar from "./Sidebar";
 
-export default function Header() {
+
+export default function Header({ onToggleSidebar }) {
   const { user, logout } = useAuth();
   const { searchTerm, setSearchTerm, wishlist, cart } = useShop();
   const navigate = useNavigate();
@@ -17,17 +17,16 @@ export default function Header() {
       navigate("/store");
     }
   };
-
   return (
     <>
       <header className="header">
         <div className="header-inner container">
-          
+
           {/* LEFT SIDE */}
           <div className="header-left">
             <button
               className="hamburger-btn"
-              onClick={() => setOpenSidebar(true)}
+              onClick={onToggleSidebar}
             >
               ☰
             </button>
@@ -36,6 +35,7 @@ export default function Header() {
               <span className="mark">YS</span> YoziShop
             </div>
           </div>
+
 
           {/* CENTER NAVIGATION */}
           <div className="header-center">
@@ -137,8 +137,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* SIDEBAR */}
-      <Sidebar open={openSidebar} onClose={() => setOpenSidebar(false)} />
+     
     </>
   );
 }

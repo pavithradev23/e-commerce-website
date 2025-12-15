@@ -5,20 +5,19 @@ import { useAuth } from "../components/AuthProvider";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { login } = useAuth();
   const nav = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
-
-    // Assign role based on email (simple logic)
-    const role = email === "admin@example.com" ? "admin" : "user";
+    setError("");
 
     try {
-      await login({ email, password, role });
+      await login({ email, password });
       nav("/");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -26,6 +25,9 @@ export default function Login() {
     <main className="auth-page">
       <div className="auth-card">
         <h1>Login</h1>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
         <form onSubmit={submit}>
           <label>
             Email

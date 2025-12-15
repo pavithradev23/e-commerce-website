@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { useShop } from "../context/ShopContext";
+import {Link} from 'react-router-dom';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const { toggleWishlist, wishlist, addToCart, cart } = useShop();
     <div className="hero-overlay">
       <h1 className="hero-title">Mega Discounts</h1>
       <p className="hero-sub">Shop top brands with exclusive offers.</p>
-      <button className="hero-btn" onClick={() => navigate("/reports")}>
+      <button className="hero-btn" onClick={() => navigate("/store")}>
         Shop Now →
       </button>
     </div>

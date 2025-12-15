@@ -4,22 +4,32 @@ const ShopContext = createContext();
 export const useShop = () => useContext(ShopContext);
 
 export default function ShopProvider({ children }) {
-  const [searchTerm, setSearchTerm] = useState("");   
+  /* -------------------- SEARCH -------------------- */
+  const [searchTerm, setSearchTerm] = useState("");
+
+  /* -------------------- CART -------------------- */
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
   });
-  useEffect(() => localStorage.setItem("cart", JSON.stringify(cart)), [cart]);
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (p) =>
     setCart((prev) =>
       prev.find((x) => x.id === p.id)
-        ? prev.map((x) => (x.id === p.id ? { ...x, qty: x.qty + 1 } : x))
+        ? prev.map((x) =>
+            x.id === p.id ? { ...x, qty: x.qty + 1 } : x
+          )
         : [...prev, { ...p, qty: 1 }]
     );
 
   const increaseQty = (id) =>
-    setCart((prev) => prev.map((x) => (x.id === id ? { ...x, qty: x.qty + 1 } : x)));
+    setCart((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, qty: x.qty + 1 } : x))
+    );
 
   const decreaseQty = (id) =>
     setCart((prev) =>
@@ -33,11 +43,15 @@ export default function ShopProvider({ children }) {
 
   const clearCart = () => setCart([]);
 
+  /* -------------------- WISHLIST -------------------- */
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem("wishlist");
     return saved ? JSON.parse(saved) : [];
   });
-  useEffect(() => localStorage.setItem("wishlist", JSON.stringify(wishlist)), [wishlist]);
+
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  }, [wishlist]);
 
   const toggleWishlist = (p) =>
     setWishlist((prev) =>
@@ -46,36 +60,47 @@ export default function ShopProvider({ children }) {
         : [...prev, p]
     );
 
+  /* -------------------- ORDERS -------------------- */
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem("orders");
     return saved ? JSON.parse(saved) : [];
   });
-  useEffect(() => localStorage.setItem("orders", JSON.stringify(orders)), [orders]);
+
+  useEffect(() => {
+    localStorage.setItem("orders", JSON.stringify(orders));
+  }, [orders]);
 
   const placeOrder = (items, total) => {
-  const statusOptions = [
-    "Pending",
-    "Packed",
-    "Shipped",
-    "Out For Delivery",
-    "Delivered"
-  ];
+    const statusOptions = [
+      "Pending",
+      "Packed",
+      "Shipped",
+      "Out For Delivery",
+      "Delivered",
+    ];
 
-  const newOrder = {
-    id: Date.now(),
-    items: JSON.parse(JSON.stringify(items)),
-    total: total,
-    date: new Date().toLocaleString(),
-    status: statusOptions[Math.floor(Math.random() * statusOptions.length)] 
+    const newOrder = {
+      id: Date.now(),
+      items: JSON.parse(JSON.stringify(items)),
+      total,
+      date: new Date().toLocaleString(),
+      status:
+        statusOptions[Math.floor(Math.random() * statusOptions.length)],
+    };
+
+    setOrders((prev) => [newOrder, ...prev]);
+    return newOrder;
   };
 
-  setOrders((prev) => [newOrder, ...prev]);
-  return newOrder;
-};
+  /* ✅ NEW: REMOVE ORDER */
+  const removeOrder = (orderId) => {
+    setOrders((prev) => prev.filter((o) => o.id !== orderId));
+  };
 
   return (
     <ShopContext.Provider
       value={{
+        /* cart */
         cart,
         addToCart,
         removeFromCart,
@@ -83,14 +108,18 @@ export default function ShopProvider({ children }) {
         decreaseQty,
         clearCart,
 
+        /* wishlist */
         wishlist,
         toggleWishlist,
 
+        /* orders */
         orders,
         placeOrder,
+        removeOrder, // 👈 exposed here
 
+        /* search */
         searchTerm,
-        setSearchTerm, 
+        setSearchTerm,
       }}
     >
       {children}

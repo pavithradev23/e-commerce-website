@@ -12,14 +12,16 @@ export default function Register() {
   const submit = async (e) => {
     e.preventDefault();
 
-    // Default role for all new registered users
-    const role = "user";
-
     try {
-      await register({ name, email, password, role });
+      await register({
+        name,
+        email,
+        password,
+        role: "user",
+      });
       nav("/");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
@@ -27,23 +29,16 @@ export default function Register() {
     <main className="auth-page">
       <div className="auth-card">
         <h1>Create account</h1>
+
         <form onSubmit={submit}>
           <label>
             Name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+            <input value={name} onChange={(e) => setName(e.target.value)} required />
           </label>
 
           <label>
             Email
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <input value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
 
           <label>

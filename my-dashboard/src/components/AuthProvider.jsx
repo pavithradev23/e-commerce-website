@@ -1,71 +1,76 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
+    const saved = localStorage.getItem("auth_user");
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
+  // Persist logged-in user
   useEffect(() => {
-    setLoading(false);
-  }, []);
+    if (user) {
+      localStorage.setItem("auth_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("auth_user");
+    }
+  }, [user]);
 
-  // ------------------ LOGIN (MOCK DATA) ------------------
+  // Load registered users
+  const getUsers = () =>
+    JSON.parse(localStorage.getItem("users") || "[]");
+
+  const saveUsers = (users) =>
+    localStorage.setItem("users", JSON.stringify(users));
+
+  // REGISTER
+  const register = async ({ name, email, password, role }) => {
+    const users = getUsers();
+
+    if (users.find((u) => u.email === email)) {
+      throw new Error("Email already registered");
+    }
+
+    const newUser = { name, email, password, role };
+    saveUsers([...users, newUser]);
+
+    setUser({ name, email, role });
+  };
+
+  // LOGIN
   const login = async ({ email, password }) => {
-    // MOCK LOGIC:
-    // If email contains "admin" → admin
-    // otherwise → user
-    const role = email.includes("admin") ? "admin" : "user";
+    const users = getUsers();
 
-    const fakeUser = {
-      id: Date.now(),
-      email,
-      role,
-    };
+    const existingUser = users.find(
+      (u) => u.email === email && u.password === password
+    );
 
-    setUser(fakeUser);
-    localStorage.setItem("user", JSON.stringify(fakeUser));
-    return fakeUser;
+    if (!existingUser) {
+      throw new Error("Invalid email or password");
+    }
+
+    setUser({
+      name: existingUser.name,
+      email: existingUser.email,
+      role: existingUser.role,
+    });
   };
 
-  // ------------------ REGISTER (MOCK) ------------------
-  const register = async ({ name, email, password }) => {
-    const fakeUser = {
-      id: Date.now(),
-      name,
-      email,
-      role: "user", // All registered users are normal users
-    };
-
-    setUser(fakeUser);
-    localStorage.setItem("user", JSON.stringify(fakeUser));
-    return fakeUser;
-  };
-
-  // ------------------ LOGOUT ------------------
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
+  const logout = () => setUser(null);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         isAuthenticated: !!user,
-        role: user?.role || null,
+        loading,
         login,
         register,
         logout,
-        loading,
       }}
     >
       {children}

@@ -11,9 +11,9 @@ export default function Footer() {
         </div>
         <div>
           <h5>Shop</h5>
-          <a href="/reports">All Products</a>
+          <a href="/store">All Products</a>
           <br />
-          <a href="/reports">New Arrivals</a>
+          <a href="/store">New Arrivals</a>
         </div>
         <div>
           <h5>Help</h5>
@@ -22,8 +22,8 @@ export default function Footer() {
         </div>
         <div>
           <h5>Company</h5>
-          <a href="#">About</a><br />
-          <a href="#">Careers</a>
+          <a href="/">About</a><br />
+          <a href="/">Careers</a>
         </div>
       </div>
 

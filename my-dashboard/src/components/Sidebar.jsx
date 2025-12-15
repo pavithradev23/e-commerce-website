@@ -1,3 +1,4 @@
+
 import React from "react";
 import { NavLink } from "react-router-dom";
 
@@ -16,8 +17,8 @@ export default function Sidebar({ open, onClose }) {
         <div className="sidebar-header">
           <h3>Categories</h3>
           <button className="close-btn" onClick={onClose}>
-            ✕
-          </button>
+             ☰
+         </button>
         </div>
 
         <nav className="sidebar-list">

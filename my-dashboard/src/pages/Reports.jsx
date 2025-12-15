@@ -136,11 +136,12 @@ export default function Reports() {
           marginBottom: 12,
         }}
       >
-        <h2>
-          {categorySlug === "all"
-            ? "Store — All Products"
-            : `Store — ${categorySlug}`}
-        </h2>
+        <h2 className="store-title">
+  {categorySlug === "all"
+    ? "Store — All Products"
+    : `Store — ${categorySlug}`}
+</h2>
+
 
        
       </div>

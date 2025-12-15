@@ -16,43 +16,55 @@ export default function TrackOrder() {
 
   return (
     <div className="track-container">
-      <h1>Track Your Order</h1>
+  <h1 className="track-title">Track Your Order</h1>
 
-      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-        <input
-          value={orderId}
-          onChange={(e) => setOrderId(e.target.value)}
-          placeholder="Enter Order ID"
-          className="track-input"
-        />
-        <button onClick={handleTrack} className="track-btn">
-          Track
-        </button>
+  {/* Search Section */}
+  <div className="track-search">
+    <input
+      value={orderId}
+      onChange={(e) => setOrderId(e.target.value)}
+      placeholder="Enter Order ID"
+      className="track-input"
+    />
+    <button onClick={handleTrack} className="track-btn">
+      Track
+    </button>
+  </div>
+
+  {/* No Order Found */}
+  {searched && !order && (
+    <p className="track-error">
+      No order found for ID <strong>{orderId}</strong>
+    </p>
+  )}
+
+  {/* Order Details */}
+  {order && (
+    <div className="order-card">
+      <h3>Order Details</h3>
+
+      <div className="order-row">
+        <span>ID:</span>
+        <span>{order.id}</span>
       </div>
 
-      {searched && !order && (
-        <p style={{ marginTop: 20 }}>
-          No order found for ID {orderId}
-        </p>
-      )}
+      <div className="order-row">
+        <span>Total:</span>
+        <span>${order.total.toFixed(2)}</span>
+      </div>
 
-      {order && (
-        <div className="order-box">
-          <h3>Order Details</h3>
+      <div className="order-row">
+        <span>Date:</span>
+        <span>{order.date}</span>
+      </div>
 
-          <p><strong>ID:</strong> {order.id}</p>
-          <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
-          <p><strong>Date:</strong> {order.date}</p>
-
-        
-          <p>
-            <strong>Status:</strong>
-            <span style={{ marginLeft: 8, color: "#ff6600", fontWeight: 600 }}>
-              {order.status || "Pending"}
-            </span>
-          </p>
-        </div>
-      )}
+      <div className="order-row">
+        <span>Status:</span>
+        <span className="order-status">{order.status}</span>
+      </div>
     </div>
+  )}
+</div>
+
   );
 }
