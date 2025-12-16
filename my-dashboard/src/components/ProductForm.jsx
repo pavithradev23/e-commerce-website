@@ -42,10 +42,40 @@ const ProductForm = ({ onSubmit, initialData = {}, onCancel }) => {
 
       <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description" />
 
-      <div style={{ marginTop: 10 }}>
-        <button type="submit">Save</button>
-        <button type="button" onClick={onCancel} style={{ marginLeft: 10 }}>Cancel</button>
-      </div>
+      <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
+  <button
+    type="submit"
+    style={{
+      padding: "10px 22px",
+      background: "linear-gradient(135deg, #ff7a18, #ff3d00)",
+      color: "#fff",
+      border: "none",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+      boxShadow: "0 4px 10px rgba(255, 61, 0, 0.3)",
+    }}
+  >
+    Save
+  </button>
+
+  <button
+    type="button"
+    onClick={onCancel}
+    style={{
+      padding: "10px 22px",
+      background: "#f5f5f5",
+      color: "#333",
+      border: "1px solid #ccc",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontWeight: 600,
+    }}
+  >
+    Cancel
+  </button>
+</div>
+
 
     </form>
   );

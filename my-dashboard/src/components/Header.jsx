@@ -21,8 +21,6 @@ export default function Header({ onToggleSidebar }) {
     <>
       <header className="header">
         <div className="header-inner container">
-
-          {/* LEFT SIDE */}
           <div className="header-left">
             <button
               className="hamburger-btn"
@@ -36,37 +34,29 @@ export default function Header({ onToggleSidebar }) {
             </div>
           </div>
 
-
-          {/* CENTER NAVIGATION */}
           <div className="header-center">
             <nav className="header-cats">
-
-              {/* HOME – visible to all logged users */}
               <NavLink to="/" className="header-cat">
                 Home
               </NavLink>
 
-              {/* STORE – visible to all logged users */}
               <NavLink to="/store" className="header-cat">
                 Store
               </NavLink>
 
-              {/* MANAGE – only admin */}
               {user?.role === "admin" && (
                 <NavLink to="/manage" className="header-cat">
                   Manage
                 </NavLink>
               )}
 
-              {/* ORDERS – only normal user */}
-              {user?.role === "user" && (
+              
                 <NavLink to="/orders" className="header-cat">
                   Orders
                 </NavLink>
-              )}
+             
             </nav>
 
-            {/* SEARCH BOX */}
             <div className="search-small">
               <input
                 type="text"
@@ -83,7 +73,6 @@ export default function Header({ onToggleSidebar }) {
             </div>
           </div>
 
-          {/* RIGHT SIDE ICONS */}
           <div className="header-right">
             <button
               className="icon-btn"
@@ -103,8 +92,7 @@ export default function Header({ onToggleSidebar }) {
             >
               🛒 <span className="badge">{cart.length}</span>
             </div>
-
-            {/* AUTH BUTTONS */}
+            
             {user ? (
               <>
                 <button

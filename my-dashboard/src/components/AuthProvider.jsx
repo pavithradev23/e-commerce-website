@@ -11,7 +11,6 @@ export default function AuthProvider({ children }) {
 
   const [loading, setLoading] = useState(false);
 
-  // Persist logged-in user
   useEffect(() => {
     if (user) {
       localStorage.setItem("auth_user", JSON.stringify(user));
@@ -20,14 +19,14 @@ export default function AuthProvider({ children }) {
     }
   }, [user]);
 
-  // Load registered users
+ 
   const getUsers = () =>
     JSON.parse(localStorage.getItem("users") || "[]");
 
   const saveUsers = (users) =>
     localStorage.setItem("users", JSON.stringify(users));
 
-  // REGISTER
+
   const register = async ({ name, email, password, role }) => {
     const users = getUsers();
 
@@ -41,24 +40,23 @@ export default function AuthProvider({ children }) {
     setUser({ name, email, role });
   };
 
-  // LOGIN
+
   const login = async ({ email, password }) => {
-    const users = getUsers();
+  const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    const existingUser = users.find(
-      (u) => u.email === email && u.password === password
-    );
+  const foundUser = users.find(
+    (u) => u.email === email && u.password === password
+  );
 
-    if (!existingUser) {
-      throw new Error("Invalid email or password");
-    }
+  if (!foundUser) {
+    throw new Error("Invalid email or password");
+  }
 
-    setUser({
-      name: existingUser.name,
-      email: existingUser.email,
-      role: existingUser.role,
-    });
-  };
+  setUser(foundUser);
+  localStorage.setItem("user", JSON.stringify(foundUser));
+
+  return foundUser; // 🔥 VERY IMPORTANT
+};
 
   const logout = () => setUser(null);
 

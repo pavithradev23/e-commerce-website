@@ -14,9 +14,13 @@ export default function Login() {
     setError("");
 
     try {
-      await login({ email, password });
+     const loggedInUser=await login({email,password});
+     if(loggedInUser.role=== "admin"){
+      nav("/admin/dashboard");
+    } else{
       nav("/");
-    } catch (err) {
+    }
+  }catch (err) {
       setError(err.message);
     }
   };

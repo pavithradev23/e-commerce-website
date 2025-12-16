@@ -4,10 +4,7 @@ const ShopContext = createContext();
 export const useShop = () => useContext(ShopContext);
 
 export default function ShopProvider({ children }) {
-  /* -------------------- SEARCH -------------------- */
   const [searchTerm, setSearchTerm] = useState("");
-
-  /* -------------------- CART -------------------- */
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem("cart");
     return saved ? JSON.parse(saved) : [];
@@ -42,8 +39,6 @@ export default function ShopProvider({ children }) {
     setCart((prev) => prev.filter((x) => x.id !== id));
 
   const clearCart = () => setCart([]);
-
-  /* -------------------- WISHLIST -------------------- */
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem("wishlist");
     return saved ? JSON.parse(saved) : [];
@@ -59,8 +54,6 @@ export default function ShopProvider({ children }) {
         ? prev.filter((x) => x.id !== p.id)
         : [...prev, p]
     );
-
-  /* -------------------- ORDERS -------------------- */
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem("orders");
     return saved ? JSON.parse(saved) : [];
@@ -92,7 +85,6 @@ export default function ShopProvider({ children }) {
     return newOrder;
   };
 
-  /* ✅ NEW: REMOVE ORDER */
   const removeOrder = (orderId) => {
     setOrders((prev) => prev.filter((o) => o.id !== orderId));
   };
@@ -100,7 +92,6 @@ export default function ShopProvider({ children }) {
   return (
     <ShopContext.Provider
       value={{
-        /* cart */
         cart,
         addToCart,
         removeFromCart,
@@ -108,16 +99,14 @@ export default function ShopProvider({ children }) {
         decreaseQty,
         clearCart,
 
-        /* wishlist */
         wishlist,
         toggleWishlist,
 
-        /* orders */
+    
         orders,
         placeOrder,
-        removeOrder, // 👈 exposed here
+        removeOrder, 
 
-        /* search */
         searchTerm,
         setSearchTerm,
       }}

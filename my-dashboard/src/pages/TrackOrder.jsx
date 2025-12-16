@@ -18,7 +18,6 @@ export default function TrackOrder() {
     <div className="track-container">
   <h1 className="track-title">Track Your Order</h1>
 
-  {/* Search Section */}
   <div className="track-search">
     <input
       value={orderId}
@@ -31,14 +30,12 @@ export default function TrackOrder() {
     </button>
   </div>
 
-  {/* No Order Found */}
   {searched && !order && (
     <p className="track-error">
       No order found for ID <strong>{orderId}</strong>
     </p>
   )}
 
-  {/* Order Details */}
   {order && (
     <div className="order-card">
       <h3>Order Details</h3>

@@ -227,7 +227,7 @@ export default function Cart() {
             <button
   onClick={() => {
     setShowSuccess(false);
-    navigate("/store"); // ✅ correct route
+    navigate("/store"); 
   }}
   style={{
     marginTop: 15,

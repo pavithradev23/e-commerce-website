@@ -2,7 +2,7 @@ import React from "react";
 import { useShop } from "../context/ShopContext";
 
 export default function Orders() {
-  const { orders, removeOrder } = useShop(); // 👈 include removeOrder
+  const { orders, removeOrder } = useShop(); 
 
   return (
     <div style={{ padding: 30 }}>
@@ -23,7 +23,7 @@ export default function Orders() {
               position: "relative",
             }}
           >
-            {/* Remove Button */}
+         
             <button
               onClick={() => removeOrder(order.id)}
               style={{
@@ -40,7 +40,6 @@ export default function Orders() {
             >
               Remove
             </button>
-
             <h3>Order #{order.id}</h3>
             <p><strong>Date:</strong> {order.date}</p>
             <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
