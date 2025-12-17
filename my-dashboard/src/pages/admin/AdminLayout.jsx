@@ -1,14 +1,22 @@
 import { Outlet } from "react-router-dom";
-import AdminSidebar from "./AdminSidebar";
-import "./AdminProduct.css";
+import "../pages/admin/AdminProducts.css"; // import admin styles ONCE
 
 export default function AdminLayout() {
   return (
     <div className="admin-shell">
-      <AdminSidebar />
-      <div className="admin-main">
+      <aside className="admin-sidebar">
+        <h3>Admin</h3>
+
+        <nav>
+          <a href="/admin/dashboard">Dashboard</a>
+          <a href="/admin/products">Products</a>
+          <a href="/admin/orders">Orders</a>
+        </nav>
+      </aside>
+
+      <main className="admin-main">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }

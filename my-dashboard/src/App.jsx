@@ -25,10 +25,13 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
+/* ---------- PUBLIC ROUTE ---------- */
 function PublicRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
+
   if (loading) return <div>Loading...</div>;
   if (isAuthenticated) return <Navigate to="/" replace />;
+
   return children;
 }
 
@@ -62,17 +65,37 @@ export default function App() {
           </ProtectedRoute>
         }
       >
+        {/* Default redirect */}
+        <Route index element={<Navigate to="dashboard" replace />} />
+
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="products" element={<AdminProducts />} />
         <Route path="orders" element={<AdminOrders />} />
       </Route>
 
       {/* ---------- AUTH ---------- */}
-      <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        }
+      />
 
       {/* ---------- FALLBACK ---------- */}
-      <Route path="*" element={<div style={{ padding: 40 }}>Page not found</div>} />
+      <Route
+        path="*"
+        element={<div style={{ padding: 40 }}>Page not found</div>}
+      />
     </Routes>
   );
 }
