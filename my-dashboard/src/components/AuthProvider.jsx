@@ -5,7 +5,7 @@ export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("auth_user");
+    const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
 
@@ -13,19 +13,17 @@ export default function AuthProvider({ children }) {
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("auth_user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
     } else {
-      localStorage.removeItem("auth_user");
+      localStorage.removeItem("user");
     }
   }, [user]);
 
- 
   const getUsers = () =>
     JSON.parse(localStorage.getItem("users") || "[]");
 
   const saveUsers = (users) =>
     localStorage.setItem("users", JSON.stringify(users));
-
 
   const register = async ({ name, email, password, role }) => {
     const users = getUsers();
@@ -34,31 +32,42 @@ export default function AuthProvider({ children }) {
       throw new Error("Email already registered");
     }
 
-    const newUser = { name, email, password, role };
+    const newUser = { 
+      id: Date.now().toString(),
+      name, 
+      email, 
+      password, 
+      role,
+      createdAt: new Date().toISOString()
+    };
+    
     saveUsers([...users, newUser]);
-
-    setUser({ name, email, role });
+    const { password: _, ...userWithoutPassword } = newUser;
+    setUser(userWithoutPassword);
+    
+    return userWithoutPassword;
   };
 
-
   const login = async ({ email, password }) => {
-  const users = JSON.parse(localStorage.getItem("users")) || [];
+    const users = getUsers();
+    const foundUser = users.find(
+      (u) => u.email === email && u.password === password
+    );
 
-  const foundUser = users.find(
-    (u) => u.email === email && u.password === password
-  );
+    if (!foundUser) {
+      throw new Error("Invalid email or password");
+    }
 
-  if (!foundUser) {
-    throw new Error("Invalid email or password");
-  }
+    const { password: _, ...userWithoutPassword } = foundUser;
+    setUser(userWithoutPassword);
 
-  setUser(foundUser);
-  localStorage.setItem("user", JSON.stringify(foundUser));
+    return userWithoutPassword;
+  };
 
-  return foundUser; // 🔥 VERY IMPORTANT
-};
-
-  const logout = () => setUser(null);
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
 
   return (
     <AuthContext.Provider

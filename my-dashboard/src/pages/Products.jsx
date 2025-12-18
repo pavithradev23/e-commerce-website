@@ -10,7 +10,7 @@ export default function Products() {
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
-r
+
   const filtered = products.filter((p) =>
     p.title.toLowerCase().includes(searchTerm.toLowerCase())
   );

@@ -1,36 +1,40 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-
-const linkStyle = ({ isActive }) => ({
-  padding: "10px 16px",
-  textDecoration: "none",
-  color: isActive ? "#4f46e5" : "#374151",
-  background: isActive ? "#eef2ff" : "transparent",
-  borderRadius: 6,
-});
+import { useAuth } from "../AuthProvider"; 
 
 export default function AdminSidebar() {
-  return (
-    <aside
-      style={{
-        width: 240,
-        background: "#fff",
-        padding: 16,
-        borderRight: "1px solid #e5e7eb",
-      }}
-    >
-      <h4 style={{ marginBottom: 20 }}>Admin</h4>
+  const { user } = useAuth();
+  const menuItems = [
+    { path: "/admin/dashboard", label: "Dashboard", icon: "📊" },
+    { path: "/admin/products", label: "Products", icon: "📦" },
+    { path: "/admin/orders", label: "Orders", icon: "📋" },
+  ];
 
-      <nav style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <NavLink to="/admin/dashboard" style={linkStyle}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/admin/products" style={linkStyle}>
-          Products
-        </NavLink>
-        <NavLink to="/admin/orders" style={linkStyle}>
-          Orders
-        </NavLink>
+  return (
+    <aside className="admin-sidebar">
+      <div className="sidebar-header">
+        <h3>Admin Panel</h3>
+        {user && (
+          <div className="user-badge">
+            <span>{user.name}</span>
+            <small>{user.role}</small>
+          </div>
+        )}
+      </div>
+      
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <span className="sidebar-icon">{item.icon}</span>
+            {item.label}
+          </NavLink>
+        ))}
       </nav>
     </aside>
   );

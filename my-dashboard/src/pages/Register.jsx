@@ -6,6 +6,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user"); 
   const { register } = useAuth();
   const nav = useNavigate();
 
@@ -17,9 +18,15 @@ export default function Register() {
         name,
         email,
         password,
-        role: "user",
+        role, 
       });
-      nav("/");
+      
+   
+      if (role === "admin") {
+        nav("/admin");
+      } else {
+        nav("/");
+      }
     } catch (err) {
       alert(err.message);
     }
@@ -49,6 +56,33 @@ export default function Register() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+          </label>
+
+        
+          <label>
+            Account Type
+            <div style={{ marginTop: 8 }}>
+              <label style={{ display: 'block', marginBottom: 8 }}>
+                <input
+                  type="radio"
+                  value="user"
+                  checked={role === "user"}
+                  onChange={(e) => setRole(e.target.value)}
+                  style={{ marginRight: 8 }}
+                />
+                Regular User
+              </label>
+              <label style={{ display: 'block' }}>
+                <input
+                  type="radio"
+                  value="admin"
+                  checked={role === "admin"}
+                  onChange={(e) => setRole(e.target.value)}
+                  style={{ marginRight: 8 }}
+                />
+                Admin
+              </label>
+            </div>
           </label>
 
           <button type="submit">Register</button>

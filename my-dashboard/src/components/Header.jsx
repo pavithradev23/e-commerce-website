@@ -44,12 +44,7 @@ export default function Header({ onToggleSidebar }) {
                 Store
               </NavLink>
 
-              {user?.role === "admin" && (
-                <NavLink to="/manage" className="header-cat">
-                  Manage
-                </NavLink>
-              )}
-
+            
               
                 <NavLink to="/orders" className="header-cat">
                   Orders

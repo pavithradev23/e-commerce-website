@@ -12,9 +12,8 @@ import {
   Cell,
   BarChart,
   Bar,
+  Legend,
 } from "recharts";
-
-/* -------------------- DATA -------------------- */
 
 const revenueData = [
   { name: "12 Aug", revenue: 8200, orders: 4200 },
@@ -28,30 +27,82 @@ const revenueData = [
 ];
 
 const categoryData = [
-  { name: "Electronics", value: 1200000 },
-  { name: "Fashion", value: 950000 },
-  { name: "Clothing", value: 750000 },
-  { name: "Beauty & Personal Care", value: 500000 },
+  { name: "Electronics", value: 1200000, color: "#4F46E5" },
+  { name: "Fashion", value: 950000, color: "#10B981" },
+  { name: "Clothing", value: 750000, color: "#F59E0B" },
+  { name: "Beauty & Personal Care", value: 500000, color: "#EF4444" },
 ];
 
 const trafficData = [
-  { name: "Direct", value: 40 },
-  { name: "Organic Search", value: 30 },
-  { name: "Social Media", value: 15 },
-  { name: "Referral", value: 10 },
-  { name: "Email Campaigns", value: 5 },
+  { name: "Direct", value: 40, color: "#4F46E5" },
+  { name: "Organic Search", value: 30, color: "#10B981" },
+  { name: "Social Media", value: 15, color: "#F59E0B" },
+  { name: "Referral", value: 10, color: "#EF4444" },
+  { name: "Email Campaigns", value: 5, color: "#8B5CF6" },
 ];
 
-const COLORS = ["#FF9F43", "#FFD8A8", "#FFE8CC", "#FFF1E6"];
 const TOTAL_CATEGORY_VALUE = categoryData.reduce((a, b) => a + b.value, 0);
 
-/* -------------------- COMPONENT -------------------- */
+
+const CustomLineTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip">
+        <p className="tooltip-label">{label}</p>
+        <p className="tooltip-item" style={{ color: "#FF9F43" }}>
+          Revenue: <strong>${payload[0].value.toLocaleString()}</strong>
+        </p>
+        <p className="tooltip-item" style={{ color: "#FFD8A8" }}>
+          Orders: <strong>{payload[1].value.toLocaleString()}</strong>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomCategoryTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const percentage = ((data.value / TOTAL_CATEGORY_VALUE) * 100).toFixed(1);
+    return (
+      <div className="custom-tooltip">
+        <p className="tooltip-label">{data.name}</p>
+        <p>
+          Revenue: <strong>${data.value.toLocaleString()}</strong>
+        </p>
+        <p>
+          Percentage: <strong>{percentage}%</strong>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomBarTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip">
+        <p className="tooltip-label">{label}</p>
+        <p>
+          Value: <strong>{payload[0].value.toLocaleString()}</strong>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export default function AdminDashboard() {
+ 
+  const targetData = [
+    { name: "Achieved", value: 85, color: "#10B981" },
+    { name: "Remaining", value: 15, color: "#E5E7EB" },
+  ];
+
   return (
     <div className="admin-dashboard">
-
-      {/* ================= TOP STATS ================= */}
       <div className="stats-grid">
         <div className="stat-card highlight">
           <p>Total Sales</p>
@@ -78,57 +129,82 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ================= MIDDLE GRID ================= */}
       <div className="middle-grid">
-
-        {/* Revenue Analytics */}
         <div className="card large">
           <div className="card-header">
             <h3>Revenue Analytics</h3>
-            <button className="chip">Last 8 Days</button>
+            <div className="chart-legend">
+              <span className="legend-item">
+                <div className="legend-color" style={{ backgroundColor: "#FF9F43" }} />
+                Revenue
+              </span>
+              <span className="legend-item">
+                <div className="legend-color" style={{ backgroundColor: "#FFD8A8" }} />
+                Orders
+              </span>
+            </div>
           </div>
 
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="name" stroke="#6B7280" />
+              <YAxis stroke="#6B7280" />
+              <Tooltip content={<CustomLineTooltip />} />
               <Line
                 type="monotone"
                 dataKey="revenue"
                 stroke="#FF9F43"
                 strokeWidth={3}
-                dot={false}
+                dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
+                activeDot={{ r: 6, fill: "#FF9F43" }}
               />
               <Line
                 type="monotone"
                 dataKey="orders"
                 stroke="#FFD8A8"
                 strokeWidth={2}
-                dot={false}
+                dot={{ r: 3, strokeWidth: 2, fill: "#fff" }}
+                activeDot={{ r: 5, fill: "#FFD8A8" }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Monthly Target */}
         <div className="card monthly-target">
-          <h3>Monthly Target</h3>
+          <div className="card-header">
+            <h3>Monthly Target</h3>
+            <div className="progress-legend">
+              <span className="legend-item">
+                <div className="legend-color" style={{ backgroundColor: "#10B981" }} />
+                Achieved
+              </span>
+              <span className="legend-item">
+                <div className="legend-color" style={{ backgroundColor: "#E5E7EB" }} />
+                Remaining
+              </span>
+            </div>
+          </div>
 
           <div className="donut-wrapper">
             <PieChart width={220} height={220}>
               <Pie
-                data={[{ value: 85 }, { value: 15 }]}
+                data={targetData}
                 innerRadius={80}
                 outerRadius={100}
                 dataKey="value"
                 startAngle={90}
                 endAngle={-270}
+                paddingAngle={2}
               >
-                <Cell fill="#FF9F43" />
-                <Cell fill="#FFE8CC" />
+                {targetData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
               </Pie>
+              <Tooltip 
+                formatter={(value) => [`${value}%`, "Progress"]}
+                contentStyle={{ borderRadius: "8px", border: "1px solid #E5E7EB" }}
+              />
             </PieChart>
 
             <div className="donut-center">
@@ -141,7 +217,7 @@ export default function AdminDashboard() {
           <p className="target-text">Great Progress!</p>
           <p className="muted">
             Our achievement increased by <strong>$200,000</strong>.  
-            Let’s reach 100% next month.
+            Let's reach 100% next month.
           </p>
 
           <div className="target-footer">
@@ -156,7 +232,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Top Categories */}
         <div className="card top-categories">
           <h3>Top Categories</h3>
 
@@ -167,11 +242,14 @@ export default function AdminDashboard() {
                 dataKey="value"
                 innerRadius={80}
                 outerRadius={100}
+                paddingAngle={2}
+                labelLine={false}
               >
-                {categoryData.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
+                {categoryData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
+              <Tooltip content={<CustomCategoryTooltip />} />
             </PieChart>
 
             <div className="donut-center">
@@ -184,7 +262,7 @@ export default function AdminDashboard() {
             {categoryData.map((c, i) => (
               <li key={c.name}>
                 <span>
-                  <i style={{ background: COLORS[i] }} />
+                  <i style={{ background: c.color }} />
                   {c.name}
                 </span>
                 <strong>${c.value.toLocaleString()}</strong>
@@ -194,18 +272,15 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ================= BOTTOM GRID ================= */}
       <div className="bottom-grid">
-
-        {/* Active Users */}
         <div className="card active-users">
           <h3>Active Users</h3>
 
           {[
-            { country: "United States", value: 36 },
-            { country: "United Kingdom", value: 24 },
-            { country: "India", value: 18 },
-            { country: "Others", value: 22 },
+            { country: "United States", value: 36, color: "#4F46E5" },
+            { country: "United Kingdom", value: 24, color: "#10B981" },
+            { country: "India", value: 18, color: "#F59E0B" },
+            { country: "Others", value: 22, color: "#8B5CF6" },
           ].map((item) => (
             <div className="user-row" key={item.country}>
               <div className="user-info">
@@ -215,46 +290,66 @@ export default function AdminDashboard() {
               <div className="progress-bar">
                 <div
                   className="progress-fill"
-                  style={{ width: `${item.value}%` }}
+                  style={{ 
+                    width: `${item.value}%`,
+                    backgroundColor: item.color 
+                  }}
                 />
               </div>
             </div>
           ))}
         </div>
-        {/* Conversion Funnel */}
-        <div className="card">
-          <h3>Conversion Funnel</h3>
 
+        <div className="card">
+          <div className="card-header">
+            <h3>Conversion Funnel</h3>
+          </div>
+          
           <ResponsiveContainer width="100%" height={220}>
             <BarChart
               data={[
-                { name: "Views", value: 25000 },
-                { name: "Add to Cart", value: 12000 },
-                { name: "Checkout", value: 8500 },
-                { name: "Completed", value: 6200 },
+                { name: "Views", value: 25000, color: "#4F46E5" },
+                { name: "Add to Cart", value: 12000, color: "#10B981" },
+                { name: "Checkout", value: 8500, color: "#F59E0B" },
+                { name: "Completed", value: 6200, color: "#EF4444" },
               ]}
             >
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#FF9F43" radius={[6, 6, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+              <XAxis dataKey="name" stroke="#6B7280" />
+              <YAxis stroke="#6B7280" />
+              <Tooltip content={<CustomBarTooltip />} />
+              <Bar 
+                dataKey="value" 
+                radius={[6, 6, 0, 0]}
+                fill="#4F46E5"
+              >
+                {[
+                  { name: "Views", value: 25000, color: "#4F46E5" },
+                  { name: "Add to Cart", value: 12000, color: "#10B981" },
+                  { name: "Checkout", value: 8500, color: "#F59E0B" },
+                  { name: "Completed", value: 6200, color: "#EF4444" },
+                ].map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Traffic Sources */}
         <div className="card">
           <h3>Traffic Sources</h3>
           <ul className="list">
             {trafficData.map((t) => (
               <li key={t.name}>
-                <span>{t.name}</span>
+                <span>
+                  <i style={{ background: t.color }} />
+                  {t.name}
+                </span>
                 <strong>{t.value}%</strong>
               </li>
             ))}
           </ul>
         </div>
-
       </div>
     </div>
   );

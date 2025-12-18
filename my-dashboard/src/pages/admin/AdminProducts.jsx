@@ -26,8 +26,6 @@ export default function AdminProducts() {
   });
 
   const [undoData, setUndoData] = useState(null);
-
-  /* ---------------- FETCH PRODUCTS ---------------- */
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then((res) => res.json())
@@ -43,7 +41,7 @@ export default function AdminProducts() {
       });
   }, []);
 
-  /* ---------------- SEARCH + FILTER ---------------- */
+
   useEffect(() => {
     let result = [...products];
 
@@ -61,7 +59,7 @@ export default function AdminProducts() {
     setCurrentPage(1);
   }, [search, categoryFilter, products]);
 
-  /* ---------------- PAGINATION ---------------- */
+
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
   const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
   const currentProducts = filteredProducts.slice(
@@ -69,7 +67,7 @@ export default function AdminProducts() {
     startIndex + PRODUCTS_PER_PAGE
   );
 
-  /* ---------------- FORM HANDLERS ---------------- */
+  
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -110,7 +108,7 @@ export default function AdminProducts() {
     setShowForm(false);
   };
 
-  /* ---------------- DELETE + UNDO ---------------- */
+ 
   const handleDelete = (product) => {
     setProducts((prev) => prev.filter((p) => p.id !== product.id));
     setUndoData(product);
@@ -123,7 +121,7 @@ export default function AdminProducts() {
     setUndoData(null);
   };
 
-  /* ---------------- SEE ALL ---------------- */
+
   const handleSeeAll = () => {
     setSearch("");
     setCategoryFilter("all");
@@ -135,7 +133,6 @@ export default function AdminProducts() {
 
   return (
     <div className="admin-products-page">
-      {/* HEADER */}
       <div className="products-header">
         <h2>Products</h2>
         <div className="actions">
@@ -168,7 +165,6 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      {/* ADD / EDIT FORM */}
       {showForm && (
         <form className="product-form" onSubmit={handleSubmit}>
           <h3>{isEditing ? "Edit Product" : "Add Product"}</h3>
@@ -190,7 +186,7 @@ export default function AdminProducts() {
         </form>
       )}
 
-      {/* UNDO MESSAGE */}
+  
       {undoData && (
         <div className="undo-toast">
           <strong>{undoData.title}</strong> deleted.
@@ -198,7 +194,7 @@ export default function AdminProducts() {
         </div>
       )}
 
-      {/* TABLE */}
+
       <table className="products-table">
         <thead>
           <tr>
@@ -229,8 +225,7 @@ export default function AdminProducts() {
           ))}
         </tbody>
       </table>
-
-      {/* PAGINATION */}
+      
       <div className="pagination">
         <button disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)}>Prev</button>
         {[...Array(totalPages)].map((_, i) => (

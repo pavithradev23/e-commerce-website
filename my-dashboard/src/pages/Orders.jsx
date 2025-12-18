@@ -2,7 +2,7 @@ import React from "react";
 import { useShop } from "../context/ShopContext";
 
 export default function Orders() {
-  const { orders, removeOrder } = useShop(); 
+  const { orders, removeOrder } = useShop();
 
   return (
     <div style={{ padding: 30 }}>
@@ -17,13 +17,12 @@ export default function Orders() {
             style={{
               background: "#fff",
               padding: 20,
-              borderRadius: 10,
+              borderRadius: 12,
               marginBottom: 20,
               boxShadow: "0 8px 25px rgba(0,0,0,0.07)",
               position: "relative",
             }}
           >
-         
             <button
               onClick={() => removeOrder(order.id)}
               style={{
@@ -33,17 +32,23 @@ export default function Orders() {
                 background: "#ff4d4f",
                 color: "#fff",
                 border: "none",
-                padding: "6px 12px",
-                borderRadius: 12,
+                padding: "6px 14px",
+                borderRadius: 14,
                 cursor: "pointer",
               }}
             >
               Remove
             </button>
+
             <h3>Order #{order.id}</h3>
             <p><strong>Date:</strong> {order.date}</p>
             <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
-            <p><strong>Status:</strong> {order.status}</p>
+            <p>
+              <strong>Status:</strong>{" "}
+              <span style={{ color: "#4caf50", fontWeight: 600 }}>
+                {order.status}
+              </span>
+            </p>
 
             <h4 style={{ marginTop: 10 }}>Items:</h4>
             <ul>

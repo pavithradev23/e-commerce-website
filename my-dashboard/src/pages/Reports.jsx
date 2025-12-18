@@ -18,7 +18,13 @@ export default function Reports() {
 
   const { searchTerm } = useShop();   
 
-  const categorySlug = params?.slug || searchParams.get("category") || "all";
+
+  const categoryParam = params?.category;
+
+  const categorySlug = categoryParam || searchParams.get("category") || "all";
+
+  console.log("Category from URL:", categoryParam);
+  console.log("Final category slug:", categorySlug);
 
   const [products, setProducts] = useState([]);
   const [visibleProducts, setVisibleProducts] = useState([]);
@@ -36,6 +42,8 @@ export default function Reports() {
       try {
         const data = await apiGet();
         setProducts(data || []);
+        console.log("Loaded products:", data?.length || 0);
+        console.log("Unique categories in products:", [...new Set(data?.map(p => p.category) || [])]);
       } catch (err) {
         console.error(err);
       } finally {
@@ -47,22 +55,72 @@ export default function Reports() {
   useEffect(() => {
     let list = [...products];
 
-    const lower = (categorySlug || "all").toLowerCase();
+    const lowerCategory = (categorySlug || "all").toLowerCase().trim();
+    
+    console.log(`Filtering by category: "${lowerCategory}"`);
+    console.log("Total products available:", list.length);
 
-    if (lower !== "all") {
-      list = list.filter((p) =>
-        (p.category || "").toLowerCase().includes(lower)
-      );
+
+    if (lowerCategory !== "all") {
+      const originalCount = list.length;
+      
+      const categoryMapping = {
+        'electronics': ['electronics', 'electronic', 'tech', 'technology'],
+        'jewelery': ['jewelery', 'jewelry', 'jewellery', 'accessories'],
+        'men': ['men', "men's", 'mens', "men's clothing", 'men clothing', "men's fashion", 'menswear'],
+        'women': ['women', "women's", 'womens', "women's clothing", 'women clothing', "women's fashion", 'womenswear']
+      };
+
+      list = list.filter((product) => {
+        const productCategory = (product.category || "").toLowerCase().trim();
+        
+        if (productCategory === lowerCategory) {
+          console.log(`Exact match: ${product.title} -> ${productCategory}`);
+          return true;
+        }
+       
+        if (productCategory.includes(lowerCategory)) {
+          console.log(`Includes match: ${product.title} -> ${productCategory} includes ${lowerCategory}`);
+          return true;
+        }
+        
+        if (lowerCategory.includes(productCategory)) {
+          console.log(`Reverse includes: ${lowerCategory} includes ${productCategory}`);
+          return true;
+        }
+        
+    
+        if (categoryMapping[lowerCategory]) {
+          const hasMatch = categoryMapping[lowerCategory].some(variation => 
+            productCategory.includes(variation) || variation.includes(productCategory)
+          );
+          if (hasMatch) {
+            console.log(`Category variation match: ${product.title} -> ${productCategory} matches ${lowerCategory}`);
+            return true;
+          }
+        }
+        
+        return false;
+      });
+      
+      console.log(`Filtered products: ${originalCount} -> ${list.length}`);
     }
 
-    if (searchTerm.trim() !== "") {
+ 
+    if (searchTerm && searchTerm.trim() !== "") {
+      const beforeSearch = list.length;
+      const searchLower = searchTerm.toLowerCase().trim();
       list = list.filter((p) =>
-        (p.title || "").toLowerCase().includes(searchTerm.toLowerCase())
+        (p.title || "").toLowerCase().includes(searchLower) ||
+        (p.description || "").toLowerCase().includes(searchLower) ||
+        (p.category || "").toLowerCase().includes(searchLower)
       );
+      console.log(`After search "${searchTerm}": ${beforeSearch} -> ${list.length}`);
     }
 
+    console.log("Final visible products:", list.length);
     setVisibleProducts(list);
-    setPage(1);
+    setPage(1); 
   }, [products, categorySlug, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / perPage));
@@ -125,9 +183,22 @@ export default function Reports() {
     setPendingDeletes((prev) => prev.filter((x) => x.id !== id));
   };
 
+
+  const formatCategoryName = (slug) => {
+    if (slug === "all") return "All Products";
+    
+    const names = {
+      'electronics': 'Electronics',
+      'jewelery': 'Jewellery',
+      'men': "Men's Clothing",
+      'women': "Women's Clothing"
+    };
+    
+    return names[slug] || slug.charAt(0).toUpperCase() + slug.slice(1);
+  };
+
   return (
     <div>
-
       <div
         style={{
           display: "flex",
@@ -137,13 +208,9 @@ export default function Reports() {
         }}
       >
         <h2 className="store-title">
-  {categorySlug === "all"
-    ? "Store — All Products"
-    : `Store — ${categorySlug}`}
-</h2>
-
-
-       
+          Store — {formatCategoryName(categorySlug)}
+          {visibleProducts.length > 0 && ` (${visibleProducts.length} products)`}
+        </h2>
       </div>
 
       <div className={`product-form-container ${editing ? "show" : ""}`}>
@@ -160,6 +227,20 @@ export default function Reports() {
         <div>Loading…</div>
       ) : (
         <>
+          {categorySlug !== "all" && (
+            <div style={{ marginBottom: 20 }}>
+              <p>
+                <a href="/store" style={{ color: '#666', textDecoration: 'none' }}>
+                  All Products
+                </a>
+                <span style={{ margin: '0 8px' }}>›</span>
+                <span style={{ fontWeight: 'bold' }}>
+                  {formatCategoryName(categorySlug)}
+                </span>
+              </p>
+            </div>
+          )}
+
           <div className="grid">
             {visible.map((p) => (
               <div key={p.id} className="card">
@@ -173,8 +254,29 @@ export default function Reports() {
             ))}
 
             {visible.length === 0 && (
-              <div style={{ padding: 20, color: "var(--muted)" }}>
-                No products found.
+              <div style={{ padding: 40, color: "var(--muted)", textAlign: 'center' }}>
+                <h3>No products found</h3>
+                <p>
+                  {categorySlug !== "all" 
+                    ? `No products found in "${formatCategoryName(categorySlug)}" category.`
+                    : "Try adjusting your search or filters."}
+                </p>
+                {categorySlug !== "all" && (
+                  <a 
+                    href="/store" 
+                    style={{ 
+                      display: 'inline-block', 
+                      marginTop: 10,
+                      padding: '8px 16px',
+                      background: '#6366f1',
+                      color: 'white',
+                      textDecoration: 'none',
+                      borderRadius: 6
+                    }}
+                  >
+                    View All Products
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -247,6 +349,9 @@ export default function Reports() {
             <p style={{ margin: "10px 0", fontWeight: "bold" }}>
               ${viewProduct.price}
             </p>
+            <p style={{ color: '#666', fontSize: 14 }}>
+              Category: {viewProduct.category}
+            </p>
 
             <button
               onClick={() => setViewProduct(null)}
@@ -267,4 +372,3 @@ export default function Reports() {
     </div>
   );
 }
-

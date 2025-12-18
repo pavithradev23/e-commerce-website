@@ -5,13 +5,16 @@ import App from "./App";
 import "./index.css";
 import ShopProvider from "./context/ShopContext";
 import AuthProvider from "./components/AuthProvider";
+import OrderProvider from "./context/OrderContext";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <ShopProvider>
+          <OrderProvider>
           <App />
+          </OrderProvider>
         </ShopProvider>
       </AuthProvider>
     </BrowserRouter>
