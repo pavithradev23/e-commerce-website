@@ -335,7 +335,6 @@ export default function AdminDashboard() {
             </BarChart>
           </ResponsiveContainer>
         </div>
-
         <div className="card">
           <h3>Traffic Sources</h3>
           <ul className="list">

@@ -57,8 +57,6 @@ export default function Register() {
               required
             />
           </label>
-
-        
           <label>
             Account Type
             <div style={{ marginTop: 8 }}>

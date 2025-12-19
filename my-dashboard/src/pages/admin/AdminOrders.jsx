@@ -3,7 +3,7 @@ import { useShop } from "../../context/ShopContext";
 import "./Adminorders.css";
 
 export default function AdminOrders() {
-  const { orders, updateOrderStatus, removeOrder } = useShop(); // ADDED removeOrder here
+  const { orders, removeOrder } = useShop(); 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -65,15 +65,11 @@ export default function AdminOrders() {
 
   const confirmDeleteOrder = () => {
     if (deleteConfirm) {
-      // ACTUALLY DELETE THE ORDER
-      removeOrder(deleteConfirm); // ← THIS IS THE FIX
-      
-      // Close the modal if it's open for this order
+      removeOrder(deleteConfirm); 
       if (selectedOrder && selectedOrder.id === deleteConfirm) {
         closeModal();
       }
-      
-      // Clear the confirmation state
+    
       setDeleteConfirm(null);
     }
   };
@@ -107,7 +103,7 @@ export default function AdminOrders() {
               </button>
               <button 
                 className="btn delete-confirm-btn"
-                onClick={confirmDeleteOrder} // ← This now calls the actual delete
+                onClick={confirmDeleteOrder}
               >
                 Delete Order
               </button>
@@ -227,22 +223,7 @@ export default function AdminOrders() {
                   <span className="total-amount">${(order.total || 0).toFixed(2)}</span>
                 </div>
                 <div className="order-actions">
-                  {order.status === "Pending" && (
-                    <button 
-                      className="btn primary small"
-                      onClick={() => updateOrderStatus(order.id, "Shipped")}
-                    >
-                      Ship Order
-                    </button>
-                  )}
-                  {order.status === "Shipped" && (
-                    <button 
-                      className="btn primary small"
-                      onClick={() => updateOrderStatus(order.id, "Delivered")}
-                    >
-                      Mark Delivered
-                    </button>
-                  )}
+                
                   <button 
                     className="btn outline small"
                     onClick={() => handleViewOrder(order)}
@@ -272,15 +253,15 @@ export default function AdminOrders() {
                 <div className="customer-details">
                   <div className="info-row">
                     <span className="info-label">Name:</span>
-                    <span className="info-value">{selectedOrder.customerName || "Guest Customer"}</span>
+                    <span className="info-value">{selectedOrder.customerName || "Nick john"}</span>
                   </div>
                   <div className="info-row">
                     <span className="info-label">Email:</span>
-                    <span className="info-value">{selectedOrder.customerEmail || "No email provided"}</span>
+                    <span className="info-value">{selectedOrder.customerEmail || "john@gmail.com"}</span>
                   </div>
                   <div className="info-row">
                     <span className="info-label">Phone:</span>
-                    <span className="info-value">{selectedOrder.customerPhone || "No phone provided"}</span>
+                    <span className="info-value">{selectedOrder.customerPhone || "9876543210"}</span>
                   </div>
                 </div>
               </div>
@@ -338,7 +319,6 @@ export default function AdminOrders() {
                 </div>
               </div>
 
-            
               <div className="order-summary-detailed">
                 <div className="summary-row">
                   <span>Subtotal</span>
@@ -374,32 +354,10 @@ export default function AdminOrders() {
               <div className="modal-actions">
                 <button 
                   className="btn danger"
-                  onClick={() => handleDeleteOrder(selectedOrder.id)} // Just shows confirmation
+                  onClick={() => handleDeleteOrder(selectedOrder.id)}
                 >
                   Delete Order
                 </button>
-                {selectedOrder.status === "Pending" && (
-                  <button 
-                    className="btn primary large"
-                    onClick={() => {
-                      updateOrderStatus(selectedOrder.id, "Shipped");
-                      closeModal();
-                    }}
-                  >
-                    Mark as Shipped
-                  </button>
-                )}
-                {selectedOrder.status === "Shipped" && (
-                  <button 
-                    className="btn primary large"
-                    onClick={() => {
-                      updateOrderStatus(selectedOrder.id, "Delivered");
-                      closeModal();
-                    }}
-                  >
-                    Mark as Delivered
-                  </button>
-                )}
                 <button className="btn outline" onClick={closeModal}>
                   Close
                 </button>

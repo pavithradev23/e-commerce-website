@@ -1,84 +1,72 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useShop } from "../context/ShopContext";
+// src/components/ProductCard.jsx
+import React, { useState } from 'react';
 
-export default function ProductCard({ product, onEdit, onDelete }) {
-  const navigate = useNavigate();
-  const { cart, addToCart, toggleWishlist, wishlist } = useShop();
+export default function ProductCard({ product, isAdmin, onDelete, onUpdate }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProduct, setEditedProduct] = useState({...product});
 
-  const inCart = cart.find((c) => c.id === product.id);
-  const isWished = wishlist.some((w) => w.id === product.id);
+  const handleSave = () => {
+    onUpdate(editedProduct);
+    setIsEditing(false);
+  };
 
   return (
-    <div className="product-card" style={{ position: "relative" }}>
+    <div className="product-card">
+      <div className="product-image">
+        <img src={product.image} alt={product.title} />
+        {isAdmin && (
+          <div className="admin-badge">ADMIN</div>
+        )}
+      </div>
 
-      <button
-        className="wishlist-btn"
-        onClick={() => toggleWishlist(product)}
-      >
-        {isWished ? "❤️" : "🤍"}
-      </button>
-
-     
-      <img
-        src={product.image}
-        alt={product.title}
-        className="product-img"
-        onClick={() => navigate(`/product/${product.id}`)}
-        style={{ cursor: "pointer" }}
-      />
-
-      <h4 className="product-title">{product.title}</h4>
-      <p className="product-price">${product.price}</p>
-
-  
-      {!inCart ? (
-        <button
-          className="product-btn"
-          style={{
-            background: "#000",
-            color: "#fff",
-            marginTop: 8
-          }}
-          onClick={() => addToCart(product)}
-        >
-          Add to Cart
-        </button>
-      ) : (
-        <button
-          className="product-btn"
-          style={{
-            background: "#4CAF50",
-            color: "#fff",
-            marginTop: 8,
-            cursor: "default"
-          }}
-          disabled
-        >
-          ✓ Added to Cart
-        </button>
-      )}
-
-      {(onEdit || onDelete) && (
-        <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-          {onEdit && (
-            <button
-              className="product-btn small-btn black"
-              onClick={onEdit}
-            >
-              Edit
-            </button>
-          )}
-
-          {onDelete && (
-            <button
-              className="product-btn small-btn delete"
-              onClick={onDelete}
-            >
-              Delete
-            </button>
-          )}
+      {isEditing ? (
+        // Edit mode
+        <div className="edit-form">
+          <input
+            value={editedProduct.title}
+            onChange={(e) => setEditedProduct({...editedProduct, title: e.target.value})}
+          />
+          <input
+            type="number"
+            value={editedProduct.price}
+            onChange={(e) => setEditedProduct({...editedProduct, price: parseFloat(e.target.value)})}
+          />
+          <button onClick={handleSave}>Save</button>
+          <button onClick={() => setIsEditing(false)}>Cancel</button>
         </div>
+      ) : (
+        // Display mode
+        <>
+          <h3>{product.title}</h3>
+          <p className="price">${product.price.toFixed(2)}</p>
+          <p className="category">{product.category}</p>
+          <p className="stock">Stock: {product.stock}</p>
+          
+          <div className="card-actions">
+            {isAdmin ? (
+              // Admin actions
+              <div className="admin-actions">
+                <button 
+                  className="edit-btn"
+                  onClick={() => setIsEditing(true)}
+                >
+                  ✏️ Edit
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={onDelete}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            ) : (
+              // User actions
+              <button className="add-to-cart">
+                Add to Cart
+              </button>
+            )}
+          </div>
+        </>
       )}
     </div>
   );

@@ -52,7 +52,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="admin@example.com"
+              
             />
           </label>
 
@@ -63,15 +63,14 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="password123"
+              
             />
           </label>
 
           <button type="submit">Login</button>
         </form>
 
-        
-
+      
         <p style={{ marginTop: 12 }}>
           Don't have an account? <Link to="/register">Register</Link>
         </p>

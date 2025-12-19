@@ -15,14 +15,10 @@ import {
 export default function Reports() {
   const params = useParams();
   const [searchParams] = useSearchParams();
-
   const { searchTerm } = useShop();   
-
-
   const categoryParam = params?.category;
-
   const categorySlug = categoryParam || searchParams.get("category") || "all";
-
+  
   console.log("Category from URL:", categoryParam);
   console.log("Final category slug:", categorySlug);
 
