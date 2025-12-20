@@ -18,7 +18,7 @@ export default function Sidebar({ open, onClose }) {
             ☰
           </button>
         </div>
-
+        
         <nav className="sidebar-list">
           {categories.map((cat) => (
             <NavLink

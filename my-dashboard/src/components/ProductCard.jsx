@@ -1,72 +1,130 @@
-// src/components/ProductCard.jsx
 import React, { useState } from 'react';
+import { useShop } from '../context/ShopContext';
+import { useNavigate } from 'react-router-dom'; 
 
 export default function ProductCard({ product, isAdmin, onDelete, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProduct, setEditedProduct] = useState({...product});
+  const navigate = useNavigate(); 
+  
+  const { cart, addToCart, removeFromCart } = useShop();
+  
+  const cartItem = cart.find(item => item.id === product.id);
+  const isInCart = !!cartItem;
+  const cartQuantity = cartItem?.qty || 0;
 
   const handleSave = () => {
     onUpdate(editedProduct);
     setIsEditing(false);
   };
 
+  const handleAddToCart = () => {
+    addToCart(product);
+  };
+
+  const handleRemoveFromCart = () => {
+    removeFromCart(product.id);
+  };
+
+  const handleCartToggle = () => {
+    if (isInCart) {
+      handleRemoveFromCart();
+    } else {
+      handleAddToCart();
+    }
+  };
+
+
+  const handleViewProduct = () => {
+    navigate(`/product/${product.id}`);
+  };
+
   return (
     <div className="product-card">
-      <div className="product-image">
-        <img src={product.image} alt={product.title} />
+      <div 
+        className="product-image-container"
+        onClick={handleViewProduct}
+        style={{ cursor: 'pointer' }}
+      >
+        <img src={product.image} alt={product.title} className="product-image" />
         {isAdmin && (
           <div className="admin-badge">ADMIN</div>
         )}
       </div>
 
       {isEditing ? (
-        // Edit mode
         <div className="edit-form">
           <input
+            className="edit-input"
             value={editedProduct.title}
             onChange={(e) => setEditedProduct({...editedProduct, title: e.target.value})}
+            placeholder="Product Title"
           />
           <input
+            className="edit-input"
             type="number"
             value={editedProduct.price}
             onChange={(e) => setEditedProduct({...editedProduct, price: parseFloat(e.target.value)})}
+            placeholder="Price"
           />
-          <button onClick={handleSave}>Save</button>
-          <button onClick={() => setIsEditing(false)}>Cancel</button>
+          <div className="edit-buttons">
+            <button className="save-btn" onClick={handleSave}>Save</button>
+            <button className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
+          </div>
         </div>
       ) : (
-        // Display mode
-        <>
-          <h3>{product.title}</h3>
-          <p className="price">${product.price.toFixed(2)}</p>
-          <p className="category">{product.category}</p>
-          <p className="stock">Stock: {product.stock}</p>
+        <div className="product-content">
+          <h3 
+            className="product-title"
+            onClick={handleViewProduct}
+            style={{ cursor: 'pointer' }}
+          >
+            {product.title}
+          </h3>
+          <p className="product-price">${product.price.toFixed(2)}</p>
+          <span className="product-category">{product.category}</span>
           
           <div className="card-actions">
             {isAdmin ? (
-              // Admin actions
               <div className="admin-actions">
                 <button 
-                  className="edit-btn"
+                  className="admin-btn edit-btn"
                   onClick={() => setIsEditing(true)}
                 >
                   ✏️ Edit
                 </button>
                 <button 
-                  className="delete-btn"
+                  className="admin-btn delete-btn"
                   onClick={onDelete}
                 >
                   🗑️ Delete
                 </button>
               </div>
             ) : (
-              // User actions
-              <button className="add-to-cart">
-                Add to Cart
-              </button>
+              <div className="user-actions">
+                <button 
+                  className={`add-to-cart-btn ${isInCart ? 'in-cart' : ''}`}
+                  onClick={handleCartToggle}
+                >
+                  {isInCart ? (
+                    <>
+                      <span className="cart-icon">✓</span>
+                      {cartQuantity > 1 ? `Added (${cartQuantity})` : 'Added to Cart'}
+                    </>
+                  ) : (
+                    'Add to Cart'
+                  )}
+                </button>
+                <button 
+                  className="view-details-btn"
+                  onClick={handleViewProduct}
+                >
+                  👁️ View Details
+                </button>
+              </div>
             )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

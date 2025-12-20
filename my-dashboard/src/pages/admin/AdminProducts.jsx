@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import "../admin/AdminProducts.css";
 
 const PRODUCTS_PER_PAGE = 6;
 
 export default function AdminProducts() {
+  const hasFetched = useRef(false); // Add this line
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -24,12 +25,22 @@ export default function AdminProducts() {
     image: "",
   });
   const [undoData, setUndoData] = useState(null);
+  const [imageMode, setImageMode] = useState("url"); 
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
   useEffect(() => {
+    // Prevent double fetch in development
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    
+    console.log("Fetching products...");
     const fetchAllProducts = async () => {
       setLoading(true);
       try {
         const response = await fetch("https://fakestoreapi.com/products");
         const data = await response.json();
+        console.log("Fetched products:", data.length);
         const enriched = data.map((product) => ({
           ...product,
           stock: Math.floor(Math.random() * 50) + 10,
@@ -91,9 +102,70 @@ export default function AdminProducts() {
     }));
   };
 
+  const handleImageUrlChange = (e) => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      image: value,
+    }));
+    if (value) {
+      setImagePreview(value);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        // Store base64 data for form submission
+        setFormData((prev) => ({
+          ...prev,
+          image: reader.result,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageModeChange = (mode) => {
+    setImageMode(mode);
+    if (mode === "url") {
+      // Clear file when switching to URL mode
+      setSelectedFile(null);
+      if (!formData.image.startsWith("data:")) {
+        setImagePreview(formData.image);
+      } else {
+        setImagePreview("");
+        setFormData((prev) => ({ ...prev, image: "" }));
+      }
+    } else {
+      // Clear URL when switching to upload mode
+      setFormData((prev) => ({ ...prev, image: "" }));
+      if (selectedFile) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result);
+          setFormData((prev) => ({
+            ...prev,
+            image: reader.result,
+          }));
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+    }
+  };
+
   const handleAddClick = () => {
     setIsEditing(false);
     setShowForm(true);
+    setImageMode("url");
+    setSelectedFile(null);
+    setImagePreview("");
     setFormData({
       id: null,
       title: "",
@@ -107,30 +179,46 @@ export default function AdminProducts() {
   const handleEdit = (product) => {
     setIsEditing(true);
     setShowForm(true);
+    setImageMode(product.image.startsWith("data:") ? "upload" : "url");
+    setSelectedFile(null);
+    setImagePreview(product.image);
     setFormData(product);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Prepare final image data
+    let finalImage = formData.image;
+    
+    // If in upload mode and no image selected, show error
+    if (imageMode === "upload" && !selectedFile && !formData.image) {
+      alert("Please select an image to upload");
+      return;
+    }
+    
     if (isEditing) {
       const updatedAllProducts = allProducts.map((p) =>
-        p.id === formData.id ? { ...formData } : p
+        p.id === formData.id ? { ...formData, image: finalImage } : p
       );
       setAllProducts(updatedAllProducts);
       setFilteredProducts((prev) =>
-        prev.map((p) => (p.id === formData.id ? { ...formData } : p))
+        prev.map((p) => (p.id === formData.id ? { ...formData, image: finalImage } : p))
       );
     } else {
       const newProduct = {
         ...formData,
         id: Date.now(),
         status: "Active",
+        image: finalImage,
       };
       const updatedAllProducts = [newProduct, ...allProducts];
       setAllProducts(updatedAllProducts);
       setFilteredProducts((prev) => [newProduct, ...prev]);
     }
     setShowForm(false);
+    setSelectedFile(null);
+    setImagePreview("");
   };
 
   const handleDelete = (product) => {
@@ -237,6 +325,7 @@ export default function AdminProducts() {
         <div className="form-overlay">
           <form className="product-form" onSubmit={handleSubmit}>
             <h3>{isEditing ? "Edit Product" : "Add New Product"}</h3>
+            
             <div className="form-group">
               <input
                 name="title"
@@ -247,6 +336,7 @@ export default function AdminProducts() {
                 className="form-input"
               />
             </div>
+            
             <div className="form-group">
               <input
                 name="category"
@@ -257,6 +347,7 @@ export default function AdminProducts() {
                 className="form-input"
               />
             </div>
+            
             <div className="form-row">
               <div className="form-group">
                 <input
@@ -284,16 +375,75 @@ export default function AdminProducts() {
                 />
               </div>
             </div>
+            
             <div className="form-group">
-              <input
-                name="image"
-                placeholder="Image URL *"
-                value={formData.image}
-                onChange={handleChange}
-                required
-                className="form-input"
-              />
+              <div className="image-upload-header">
+                <h4>Product Image *</h4>
+                <div className="image-mode-toggle">
+                  <button
+                    type="button"
+                    className={`mode-btn ${imageMode === "url" ? "active" : ""}`}
+                    onClick={() => handleImageModeChange("url")}
+                  >
+                    Use URL
+                  </button>
+                  <button
+                    type="button"
+                    className={`mode-btn ${imageMode === "upload" ? "active" : ""}`}
+                    onClick={() => handleImageModeChange("upload")}
+                  >
+                    Upload Image
+                  </button>
+                </div>
+              </div>
+              
+              {imageMode === "url" ? (
+                <input
+                  name="image"
+                  type="url"
+                  placeholder="Image URL *"
+                  value={formData.image.startsWith("data:") ? "" : formData.image}
+                  onChange={handleImageUrlChange}
+                  required={imageMode === "url"}
+                  className="form-input"
+                />
+              ) : (
+                <div className="file-upload-container">
+                  <label className="file-upload-label">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="file-input"
+                    />
+                    <div className="file-upload-box">
+                      {selectedFile ? (
+                        <div className="file-selected">
+                          <span className="file-name">{selectedFile.name}</span>
+                          <span className="file-size">
+                            {(selectedFile.size / 1024).toFixed(1)} KB
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="file-placeholder">
+                          <span className="upload-icon">📁</span>
+                          <span>Click to choose image</span>
+                          <small>Supports: JPG, PNG, GIF, WebP</small>
+                        </div>
+                      )}
+                    </div>
+                  </label>
+                </div>
+              )}
+              
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                  <small>Image Preview</small>
+                </div>
+              )}
             </div>
+            
             <div className="form-actions">
               <button className="btn primary" type="submit">
                 {isEditing ? "Update Product" : "Add Product"}

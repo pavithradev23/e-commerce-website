@@ -13,48 +13,47 @@ export default function AdminHeader() {
   };
 
   return (
-    <div className="admin-header">  
-      <h2 className="admin-title">Admin Dashboard</h2>
-
-      <div className="admin-search">
-        <FiSearch className="search-icon" />
-        <input
-          type="text"
-          placeholder="Search stock, order, etc"
-        />
+    <div className="admin-header">
+      {/* Left Section - Title */}
+      <div className="header-left">
+        <h2 className="admin-title">Admin Dashboard</h2>
       </div>
-
-      <div className="admin-actions">
-        <FiBell className="icon" />
-
+      
+      {/* Center Section - Search */}
+      <div className="header-center">
+        <div className="admin-search">
+          <FiSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search stock, order, etc"
+          />
+        </div>
+      </div>
+      
+      {/* Right Section - Actions */}
+      <div className="header-right">
+        <div className="header-icons">
+          <FiBell className="icon" />
+        </div>
+        
         <div className="admin-profile">
           <img
             src="https://i.pravatar.cc/40"
             alt="admin"
           />
-          <div>
+          <div className="profile-info">
             <p className="name">{user?.name || "Admin User"}</p>
             <span className="role">{user?.role || "Admin"}</span>
           </div>
         </div>
-
+        
         <button 
           onClick={handleLogout}
           className="logout-btn"
           title="Logout"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#666',
-            cursor: 'pointer',
-            padding: '8px',
-            borderRadius: '6px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
         >
-          <FiLogOut size={20} />
+          <FiLogOut size={18} />
+          <span>Logout</span>
         </button>
       </div>
     </div>

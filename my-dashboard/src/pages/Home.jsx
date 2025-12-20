@@ -2,16 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { useShop } from "../context/ShopContext";
-import {Link} from 'react-router-dom';
 
 export default function Home() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
 
-const { toggleWishlist, wishlist, addToCart, cart } = useShop();
+  const { toggleWishlist, wishlist, addToCart, cart } = useShop();
 
- 
   const categoryImages = {
     electronics:
       "https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80",
@@ -21,6 +19,14 @@ const { toggleWishlist, wishlist, addToCart, cart } = useShop();
       "https://images.unsplash.com/photo-1602810320073-1230c46d89d4?w=600&q=80",
     "women's clothing":
       "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600&q=80",
+  };
+
+  // Map category names to URL slugs that Reports.jsx expects
+  const categoryUrlMap = {
+    "electronics": "electronics",
+    "jewelery": "jewelery", 
+    "men's clothing": "men",
+    "women's clothing": "women"
   };
 
   useEffect(() => {
@@ -35,65 +41,59 @@ const { toggleWishlist, wishlist, addToCart, cart } = useShop();
 
   return (
     <div className="home-page">
-<section className="hero-wrapper">
+      <section className="hero-wrapper">
+        <div className="hero-left">
+          <img
+            src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1400&q=80"
+            alt="Hero Banner"
+            className="hero-img"
+          />
 
-  <div className="hero-left">
-    <img
-      src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1400&q=80"
-      alt="Hero Banner"
-      className="hero-img"
-    />
+          <div className="hero-overlay">
+            <h1 className="hero-title">Mega Discounts</h1>
+            <p className="hero-sub">Shop top brands with exclusive offers.</p>
+            <button className="hero-btn" onClick={() => navigate("/store")}>
+              Shop Now →
+            </button>
+          </div>
+        </div>
 
-    <div className="hero-overlay">
-      <h1 className="hero-title">Mega Discounts</h1>
-      <p className="hero-sub">Shop top brands with exclusive offers.</p>
-      <button className="hero-btn" onClick={() => navigate("/store")}>
-        Shop Now →
-      </button>
-    </div>
-  </div>
+        <div className="hero-right">
+          <div className="promo-card-img">
+            <img
+              src="https://images.unsplash.com/photo-1551854838-212c50b4c184?w=500&q=80"
+              alt="Clothing"
+            />
+            <div className="promo-info">
+              <h4>Clothing</h4>
+              <p>Extra <strong>30% Off</strong> All Sale Styles</p>
+            </div>
+          </div>
 
-  <div className="hero-right">
+          <div className="promo-card-img">
+            <img
+              src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500&q=80"
+              alt="Beauty"
+            />
+            <div className="promo-info">
+              <h4>Beauty</h4>
+              <p>20% Off or More Beauty Products</p>
+            </div>
+          </div>
 
-    <div className="promo-card-img">
-      <img
-        src="https://images.unsplash.com/photo-1551854838-212c50b4c184?w=500&q=80"
-        alt="Clothing"
-      />
-      <div className="promo-info">
-        <h4>Clothing</h4>
-        <p>Extra <strong>30% Off</strong> All Sale Styles</p>
-      </div>
-    </div>
+          <div className="promo-card-img">
+            <img
+              src="https://images.unsplash.com/photo-1593344484962-796055d4a3a4?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZWxlY3Ryb25pY3N8ZW58MHx8MHx8fDA%3D"
+              alt="Electronics"
+            />
+            <div className="promo-info">
+              <h4>Electronics</h4>
+              <p>Smart Home, Appliances & More</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <div className="promo-card-img">
-      <img
-        src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500&q=80"
-        alt="Beauty"
-      />
-      <div className="promo-info">
-        <h4>Beauty</h4>
-        <p>20% Off or More Beauty Products</p>
-      </div>
-    </div>
-
-    <div className="promo-card-img">
-      <img
-        src="https://images.unsplash.com/photo-1593344484962-796055d4a3a4?w=400&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8ZWxlY3Ryb25pY3N8ZW58MHx8MHx8fDA%3D"
-        alt="Electronics"
-      />
-      <div className="promo-info">
-        <h4>Electronics</h4>
-        <p>Smart Home, Appliances & More</p>
-      </div>
-    </div>
-
-  </div>
-
-  
-</section>
-
-     
       <h2 className="section-heading">Categories of the Week</h2>
 
       <div className="category-grid">
@@ -101,7 +101,7 @@ const { toggleWishlist, wishlist, addToCart, cart } = useShop();
           <div
             key={cat}
             className="category-card"
-            onClick={() => navigate(`/category/${cat}`)}
+            onClick={() => navigate(`/store/${categoryUrlMap[cat]}`)} // Fixed: Use /store/{slug}
           >
             <img
               src={categoryImages[cat]}
@@ -113,52 +113,43 @@ const { toggleWishlist, wishlist, addToCart, cart } = useShop();
         ))}
       </div>
 
-     
-      
+      <h2 className="section-heading">Featured Products</h2>
 
-  <h2 className="section-heading">Featured Products</h2>
+      <div className="product-grid">
+        {featuredProducts.map((p) => {
+          const isWishlisted = wishlist.some((w) => w.id === p.id);
+          const isAdded = cart.some((c) => c.id === p.id);
 
-<div className="product-grid">
-  {featuredProducts.map((p) => {
-    const isWishlisted = wishlist.some((w) => w.id === p.id);
+          return (
+            <div className="product-card" key={p.id}>
+              <button
+                className="wishlist-btn"
+                onClick={() => toggleWishlist(p)}
+              >
+                {isWishlisted ? "❤️" : "🤍"}
+              </button>
 
-   
-    const isAdded = cart.some((c) => c.id === p.id);
+              <img src={p.image} alt={p.title} className="product-img" />
 
-    return (
-      <div className="product-card" key={p.id}>
+              <h4 className="product-title">{p.title}</h4>
+              <p className="product-price">${p.price}</p>
 
-        <button
-          className="wishlist-btn"
-          onClick={() => toggleWishlist(p)}
-        >
-          {isWishlisted ? "❤️" : "🤍"}
-        </button>
-
-        <img src={p.image} alt={p.title} className="product-img" />
-
-        <h4 className="product-title">{p.title}</h4>
-        <p className="product-price">${p.price}</p>
-
-       
-        <button
-          className="product-btn"
-          onClick={() => addToCart(p)}
-          style={{
-            background: isAdded ? "#2ecc71" : "#000",
-            color: "#fff",
-            transition: "0.3s",
-          }}
-          disabled={isAdded} 
-        >
-          {isAdded ? "✔ Added to Cart" : "Add to Cart"}
-        </button>
-
+              <button
+                className="product-btn"
+                onClick={() => addToCart(p)}
+                style={{
+                  background: isAdded ? "#2ecc71" : "#000",
+                  color: "#fff",
+                  transition: "0.3s",
+                }}
+                disabled={isAdded} 
+              >
+                {isAdded ? "✔ Added to Cart" : "Add to Cart"}
+              </button>
+            </div>
+          );
+        })}
       </div>
-    );
-  })}
-</div>
-
     </div>
   );
 }
