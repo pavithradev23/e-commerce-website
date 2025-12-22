@@ -8,7 +8,6 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
   const perPage = 8;
 
-  // Load only API products
   useEffect(() => {
     const load = async () => {
       const data = await getProducts();
@@ -22,9 +21,8 @@ export default function ProductsPage() {
   const start = (page - 1) * perPage;
   const visible = products.slice(start, start + perPage);
 
-  // Handle View button click
+
   const handleViewProduct = (product) => {
-    // Navigate to product details page
     navigate(`/product/${product.id}`, { 
       state: { product } 
     });
@@ -56,7 +54,6 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Products Grid - Only with View button */}
       <div className="grid">
         {visible.map((p) => (
           <div className="card" key={p.id}>
@@ -69,8 +66,7 @@ export default function ProductsPage() {
                 <h3 className="product-title">{p.title}</h3>
                 <p className="product-price">${p.price?.toFixed(2)}</p>
                 <span className="product-category">{p.category}</span>
-                
-                {/* ONLY View Button */}
+       
                 <div className="card-actions" style={{ marginTop: '15px' }}>
                   <button 
                     className="view-btn"
@@ -101,7 +97,6 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Pagination */}
       {products.length > perPage && (
         <div className="pagination" style={{ marginTop: 20 }}>
           <button

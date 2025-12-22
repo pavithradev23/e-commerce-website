@@ -1013,7 +1013,7 @@
     flex: 1;
   }
 }
-/* Admin Header Specific Fix */
+
 .admin-header {
   display: flex;
   justify-content: space-between;
@@ -1022,10 +1022,10 @@
   margin-bottom: 30px;
   border-bottom: 1px solid #eee;
   width: 100%;
-  gap: 40px; /* This creates space between sections */
+  gap: 40px; 
 }
 
-/* Title section - give it its own container */
+
 .header-left {
   flex-shrink: 0;
   min-width: 200px;
@@ -1039,7 +1039,6 @@
   white-space: nowrap;
 }
 
-/* Search section - centered with space */
 .header-center {
   flex: 1;
   display: flex;
@@ -1077,17 +1076,16 @@
   font-size: 18px;
 }
 
-/* Right section - all actions together */
+
 .header-right {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 25px; /* This controls spacing between bell, profile, and logout */
+  gap: 25px; 
   min-width: 300px;
   justify-content: flex-end;
 }
 
-/* Icons container */
 .header-icons {
   display: flex;
   align-items: center;
@@ -1157,7 +1155,7 @@
   white-space: nowrap;
 }
 
-/* Logout button - REMOVE inline styles! */
+
 .logout-btn {
   display: flex;
   align-items: center;
@@ -1183,7 +1181,7 @@
   box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
 }
 
-/* Responsive design */
+
 @media (max-width: 1024px) {
   .admin-header {
     gap: 20px;

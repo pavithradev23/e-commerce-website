@@ -9,16 +9,13 @@ export default function UserLayout() {
   return (
     <div className="app-shell">
       <Sidebar />
-
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Header />
-
         <main className="main">
           <div className="container">
             <Outlet />
           </div>
         </main>
-
         <Footer />
       </div>
     </div>

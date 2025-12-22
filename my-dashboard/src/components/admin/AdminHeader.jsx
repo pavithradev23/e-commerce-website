@@ -14,12 +14,10 @@ export default function AdminHeader() {
 
   return (
     <div className="admin-header">
-      {/* Left Section - Title */}
       <div className="header-left">
         <h2 className="admin-title">Admin Dashboard</h2>
       </div>
       
-      {/* Center Section - Search */}
       <div className="header-center">
         <div className="admin-search">
           <FiSearch className="search-icon" />
@@ -30,7 +28,7 @@ export default function AdminHeader() {
         </div>
       </div>
       
-      {/* Right Section - Actions */}
+    
       <div className="header-right">
         <div className="header-icons">
           <FiBell className="icon" />

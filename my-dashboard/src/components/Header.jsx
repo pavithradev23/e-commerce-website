@@ -119,8 +119,6 @@ export default function Header({ onToggleSidebar }) {
 
         </div>
       </header>
-
-     
     </>
   );
 }

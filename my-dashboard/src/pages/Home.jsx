@@ -21,7 +21,7 @@ export default function Home() {
       "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600&q=80",
   };
 
-  // Map category names to URL slugs that Reports.jsx expects
+
   const categoryUrlMap = {
     "electronics": "electronics",
     "jewelery": "jewelery", 
@@ -101,7 +101,7 @@ export default function Home() {
           <div
             key={cat}
             className="category-card"
-            onClick={() => navigate(`/store/${categoryUrlMap[cat]}`)} // Fixed: Use /store/{slug}
+            onClick={() => navigate(`/store/${categoryUrlMap[cat]}`)} 
           >
             <img
               src={categoryImages[cat]}

@@ -4,7 +4,7 @@ import "../admin/AdminProducts.css";
 const PRODUCTS_PER_PAGE = 6;
 
 export default function AdminProducts() {
-  const hasFetched = useRef(false); // Add this line
+  const hasFetched = useRef(false);
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -30,7 +30,6 @@ export default function AdminProducts() {
   const [imagePreview, setImagePreview] = useState("");
 
   useEffect(() => {
-    // Prevent double fetch in development
     if (hasFetched.current) return;
     hasFetched.current = true;
     
@@ -117,12 +116,9 @@ export default function AdminProducts() {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      
-      // Create a preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        // Store base64 data for form submission
         setFormData((prev) => ({
           ...prev,
           image: reader.result,
@@ -135,7 +131,6 @@ export default function AdminProducts() {
   const handleImageModeChange = (mode) => {
     setImageMode(mode);
     if (mode === "url") {
-      // Clear file when switching to URL mode
       setSelectedFile(null);
       if (!formData.image.startsWith("data:")) {
         setImagePreview(formData.image);
@@ -144,7 +139,6 @@ export default function AdminProducts() {
         setFormData((prev) => ({ ...prev, image: "" }));
       }
     } else {
-      // Clear URL when switching to upload mode
       setFormData((prev) => ({ ...prev, image: "" }));
       if (selectedFile) {
         const reader = new FileReader();
@@ -187,11 +181,8 @@ export default function AdminProducts() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Prepare final image data
     let finalImage = formData.image;
     
-    // If in upload mode and no image selected, show error
     if (imageMode === "upload" && !selectedFile && !formData.image) {
       alert("Please select an image to upload");
       return;

@@ -257,7 +257,7 @@ export default function AdminDashboard() {
               <h2>${(TOTAL_CATEGORY_VALUE / 1_000_000).toFixed(1)}M</h2>
             </div>
           </div>
-
+          
           <ul className="legend-list">
             {categoryData.map((c, i) => (
               <li key={c.name}>
@@ -271,7 +271,6 @@ export default function AdminDashboard() {
           </ul>
         </div>
       </div>
-
       <div className="bottom-grid">
         <div className="card active-users">
           <h3>Active Users</h3>

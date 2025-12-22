@@ -84,8 +84,6 @@ export default function Reports() {
           console.log(`Reverse includes: ${lowerCategory} includes ${productCategory}`);
           return true;
         }
-        
-    
         if (categoryMapping[lowerCategory]) {
           const hasMatch = categoryMapping[lowerCategory].some(variation => 
             productCategory.includes(variation) || variation.includes(productCategory)
