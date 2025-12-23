@@ -20,6 +20,7 @@ import AdminOrders from "./pages/admin/Adminorders";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Unauthorized from "./pages/Unauthorized"; 
+import Chatbot from "./components/Chatbot"; 
 
 function PublicRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();

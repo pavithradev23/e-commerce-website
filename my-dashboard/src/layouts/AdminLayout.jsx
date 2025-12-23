@@ -4,6 +4,7 @@ import { useAuth } from "../components/AuthProvider";
 import AdminHeader from "../components/admin/AdminHeader";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import "../pages/admin/AdminProducts.css"; 
+import Chatbot from '../components/Chatbot';
 
 export default function AdminLayout() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -30,6 +31,7 @@ export default function AdminLayout() {
           <Outlet />
         </div>
       </div>
+      <Chatbot />
     </div>
   );
 }
