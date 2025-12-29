@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../chatbot.css';
-
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
@@ -18,7 +17,6 @@ const Chatbot = () => {
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
-
     useEffect(() => {
         scrollToBottom();
     }, [messages, isTyping]);

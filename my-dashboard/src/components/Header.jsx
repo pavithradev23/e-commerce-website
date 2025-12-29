@@ -43,9 +43,6 @@ export default function Header({ onToggleSidebar }) {
               <NavLink to="/store" className="header-cat">
                 Store
               </NavLink>
-
-            
-              
                 <NavLink to="/orders" className="header-cat">
                   Orders
                 </NavLink>
