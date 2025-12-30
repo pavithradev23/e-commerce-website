@@ -6,8 +6,10 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const nav = useNavigate();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const redirectPath = localStorage.getItem("redirectAfterLogin");
     if (redirectPath && redirectPath !== "/login") {
@@ -18,23 +20,33 @@ export default function Login() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const loggedInUser = await login({ email, password });
       const redirectPath = localStorage.getItem("redirectAfterLogin");
-      localStorage.removeItem("redirectAfterLogin"); 
+      localStorage.removeItem("redirectAfterLogin");
       
+      // Verify JWT token was stored
+      const token = localStorage.getItem("jwt_token");
+      if (!token) {
+        throw new Error("Authentication failed - No JWT token generated");
+      }
+
+      // Redirect based on role
       if (loggedInUser.role === "admin") {
         if (redirectPath && redirectPath.includes("/admin")) {
-          nav(redirectPath);
+          navigate(redirectPath);
         } else {
-          nav("/admin/dashboard");
+          navigate("/admin/dashboard");
         }
       } else {
-        nav(redirectPath || "/");
+        navigate(redirectPath || "/");
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,7 +55,7 @@ export default function Login() {
       <div className="auth-card">
         <h1>Login</h1>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={{ color: "red", marginBottom: "15px" }}>{error}</p>}
 
         <form onSubmit={submit}>
           <label>
@@ -52,7 +64,8 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              
+              disabled={loading}
+              placeholder="Enter your email"
             />
           </label>
 
@@ -63,15 +76,17 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              
+              disabled={loading}
+              placeholder="Enter your password"
             />
           </label>
 
-          <button type="submit">Login</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
-      
-        <p style={{ marginTop: 12 }}>
+        <p style={{ marginTop: "20px", textAlign: "center" }}>
           Don't have an account? <Link to="/register">Register</Link>
         </p>
       </div>

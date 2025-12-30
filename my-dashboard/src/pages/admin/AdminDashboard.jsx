@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/AuthProvider";
 import {
   LineChart,
   Line,
@@ -42,7 +44,6 @@ const trafficData = [
 ];
 
 const TOTAL_CATEGORY_VALUE = categoryData.reduce((a, b) => a + b.value, 0);
-
 
 const CustomLineTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -95,7 +96,32 @@ const CustomBarTooltip = ({ active, payload, label }) => {
 };
 
 export default function AdminDashboard() {
- 
+  const { isAuthenticated, isAdmin, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      localStorage.setItem("redirectAfterLogin", "/admin/dashboard");
+      navigate("/login");
+      return;
+    }
+
+    if (!isAdmin) {
+      navigate("/unauthorized");
+      return;
+    }
+
+    console.log("Admin Dashboard accessed by:", user?.name);
+  }, [isAuthenticated, isAdmin, navigate, user]);
+
+  if (!isAuthenticated || !isAdmin) {
+    return (
+      <div className="admin-dashboard">
+        <div className="loading-screen">Checking permissions...</div>
+      </div>
+    );
+  }
+
   const targetData = [
     { name: "Achieved", value: 85, color: "#10B981" },
     { name: "Remaining", value: 15, color: "#E5E7EB" },
@@ -103,6 +129,13 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-dashboard">
+      <div className="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <p className="welcome-text">
+          Welcome back, <strong>{user?.name}</strong>! Here's what's happening with your store.
+        </p>
+      </div>
+
       <div className="stats-grid">
         <div className="stat-card highlight">
           <p>Total Sales</p>

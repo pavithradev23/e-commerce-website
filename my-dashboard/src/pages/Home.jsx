@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/AuthProvider"; 
 import "./Home.css";
 import { useShop } from "../context/ShopContext";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth(); 
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
-
   const { toggleWishlist, wishlist, addToCart, cart } = useShop();
 
   const categoryImages = {
@@ -21,7 +22,6 @@ export default function Home() {
       "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600&q=80",
   };
 
-
   const categoryUrlMap = {
     "electronics": "electronics",
     "jewelery": "jewelery", 
@@ -30,6 +30,14 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      localStorage.setItem("redirectAfterLogin", "/");
+      navigate("/login");
+      return;
+    }
+
+    console.log("Home page accessed by:", user?.name, "Role:", user?.role);
+
     fetch("https://fakestoreapi.com/products/categories")
       .then((res) => res.json())
       .then((data) => setCategories(data));
@@ -37,10 +45,27 @@ export default function Home() {
     fetch("https://fakestoreapi.com/products?limit=4")
       .then((res) => res.json())
       .then((data) => setFeaturedProducts(data));
-  }, []);
+  }, [isAuthenticated, navigate, user]);
+
+
+  if (!isAuthenticated) {
+    return (
+      <div className="home-page">
+        <div className="loading-container">
+          <p>Checking authentication...</p>
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="home-page">
+      <div className="welcome-banner">
+        <h1>Welcome back </h1>
+        <p>Discover amazing products just for you.</p>
+      </div>
+
       <section className="hero-wrapper">
         <div className="hero-left">
           <img

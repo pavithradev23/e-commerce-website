@@ -1,14 +1,34 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/AuthProvider"; 
 import { useShop } from "../../context/ShopContext";
 import "./Adminorders.css";
 
 export default function AdminOrders() {
+  const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, user } = useAuth();
   const { orders, removeOrder } = useShop(); 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+  // Add JWT authentication check
+  useEffect(() => {
+    if (!isAuthenticated) {
+      localStorage.setItem("redirectAfterLogin", "/admin/orders");
+      navigate("/login");
+      return;
+    }
+
+    if (!isAdmin) {
+      navigate("/unauthorized");
+      return;
+    }
+
+    console.log("Admin Orders accessed by:", user?.name);
+  }, [isAuthenticated, isAdmin, navigate, user]);
 
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
@@ -69,7 +89,6 @@ export default function AdminOrders() {
       if (selectedOrder && selectedOrder.id === deleteConfirm) {
         closeModal();
       }
-    
       setDeleteConfirm(null);
     }
   };
@@ -77,6 +96,19 @@ export default function AdminOrders() {
   const cancelDelete = () => {
     setDeleteConfirm(null);
   };
+
+  // Show loading/redirect if not authenticated or not admin
+  if (!isAuthenticated || !isAdmin) {
+    return (
+      <div className="admin-orders-page">
+        <div className="empty-state">
+          <div className="empty-icon">🔒</div>
+          <h3>Checking permissions...</h3>
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!orders) {
     return (
@@ -111,12 +143,28 @@ export default function AdminOrders() {
           </div>
         </div>
       )}
+      
+      {/* Add welcome message with admin name */}
       <div className="page-header">
         <div>
-          <h1>Orders</h1>
-          <p className="page-subtitle">{filteredOrders.length} order(s) found</p>
+          <h1>Orders Management</h1>
+          <p className="page-subtitle">
+            Welcome, <strong>{user?.name}</strong>! {filteredOrders.length} order(s) found
+          </p>
+          <div className="auth-info" style={{
+            fontSize: "12px",
+            color: "#666",
+            background: "#f0f9ff",
+            padding: "6px 12px",
+            borderRadius: "6px",
+            display: "inline-block",
+            marginTop: "8px"
+          }}>
+            🔐 JWT Protected | Role: {user?.role || "Admin"} | Session Active
+          </div>
         </div>
       </div>
+      
       <div className="filters-bar">
         <div className="search-box">
           <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -154,6 +202,7 @@ export default function AdminOrders() {
           )}
         </div>
       </div>
+      
       {orders.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📦</div>
@@ -223,7 +272,6 @@ export default function AdminOrders() {
                   <span className="total-amount">${(order.total || 0).toFixed(2)}</span>
                 </div>
                 <div className="order-actions">
-                
                   <button 
                     className="btn outline small"
                     onClick={() => handleViewOrder(order)}
@@ -236,6 +284,7 @@ export default function AdminOrders() {
           ))}
         </div>
       )}
+      
       {isModalOpen && selectedOrder && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -349,7 +398,6 @@ export default function AdminOrders() {
                 </div>
               )}
             </div>
-
             <div className="modal-footer">
               <div className="modal-actions">
                 <button 
