@@ -26,14 +26,26 @@ USERS_FILE = 'users.json'
 
 def load_users():
     try:
-        with open(USERS_FILE, 'r') as f:
-            return json.load(f)
+        with open(USERS_FILE,'r') as f:
+            users=json.load(f)
+
+        for user in users:
+         if user['email']!='admin@gmail.com' and user['role']=='admin':
+             user['role']='user'
+             print(f"Security fix:Downgraded {user['email']} from admin to user")
+             fixed=True
+
+         if fixed:
+             save_users(user)
+
+         return users
+         
     except FileNotFoundError:
         default_users = [
             {
                 'id': str(uuid.uuid4()),
                 'name': 'Admin User',
-                'email': 'admin@demo.com',
+                'email': 'admin@gmail.com',
                 'password': hash_password('admin123'),
                 'role': 'admin',
                 'created_at': datetime.utcnow().isoformat(),
@@ -42,7 +54,7 @@ def load_users():
             {
                 'id': str(uuid.uuid4()),
                 'name': 'John Doe',
-                'email': 'user@demo.com',
+                'email': 'user@gmail.com',
                 'password': hash_password('user123'),
                 'role': 'user',
                 'created_at': datetime.utcnow().isoformat(),
@@ -95,7 +107,14 @@ def register():
         for field in required_fields:
             if not data.get(field):
                 return jsonify({'success': False,'error': f'{field} is required'}), 400
+        if 'role' in data:
+            data.pop('role')
+
         
+        original_role = request.json.get('role') if request.json else None
+        if original_role and original_role.lower() == 'admin':
+            print(f"🚨 SECURITY ALERT: Attempt to register as admin from IP: {request.remote_addr}")
+            print(f"    Email: {data.get('email')}")
         existing_user = find_user_by_email(data['email'])
         if existing_user:
             return jsonify({'success': False,'error': 'Email already registered'}), 400
@@ -105,7 +124,7 @@ def register():
             'name': data['name'],
             'email': data['email'],
             'password': hash_password(data['password']),
-            'role': data.get('role', 'user'),
+            'role': 'user',
             'created_at': datetime.utcnow().isoformat(),
             'last_login': datetime.utcnow().isoformat()
         }
@@ -313,6 +332,18 @@ def get_admin_products():
         
     except Exception as e:
         return jsonify({'success': False,'error': 'Failed to fetch products'}), 500
+
+@app.route('/api/search',methods=['GET'])
+def search_products():
+    search_query=request.args.get('q','').lower()
+    response=requests.get('https://fakestoreapi.com/products')
+    products= response.json()
+   
+    filtered=[]
+    for prod in products:
+     if search_query in prod['title'].lower():
+         filtered.append(prod) 
+         return jsonify (filtered)
 
 def detect_greeting_or_general(message):
     message_lower = message.lower().strip()
