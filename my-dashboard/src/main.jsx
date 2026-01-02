@@ -8,7 +8,7 @@ import AuthProvider from "./components/AuthProvider";
 import OrderProvider from "./context/OrderContext";
 
 createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+
     <BrowserRouter>
       <AuthProvider>
         <ShopProvider>
@@ -18,6 +18,6 @@ createRoot(document.getElementById("root")).render(
         </ShopProvider>
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>
+
 );
 

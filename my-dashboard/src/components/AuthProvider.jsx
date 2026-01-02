@@ -2,151 +2,170 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
-const JWT_SECRET = 'yozi-shop-demo-jwt-secret-2024';
 
-const createToken = (payload) => {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const encodedPayload = btoa(JSON.stringify({
-    ...payload,
-    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) 
-  }));
-  const signature = btoa(JWT_SECRET);
-  return `${header}.${encodedPayload}.${signature}`;
-};
-
-const verifyToken = (token) => {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    
-    const payload = JSON.parse(atob(parts[1]));
-    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
-      return null;
-    }
-    
-    const expectedSignature = btoa(JWT_SECRET);
-    if (parts[2] !== expectedSignature) {
-      return null;
-    }
-    
-    return payload;
-  } catch (error) {
-    return null;
-  }
-};
+const API_BASE_URL = "http://localhost:5000/api";
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("current_user");
     const token = localStorage.getItem("jwt_token");
-    const savedUser = localStorage.getItem("user");
     
-    if (token && savedUser) {
-      const decoded = verifyToken(token);
-      if (decoded) {
+    if (savedUser && token) {
+      try {
         return JSON.parse(savedUser);
-      } else {
+      } catch (error) {
+        localStorage.removeItem("current_user");
         localStorage.removeItem("jwt_token");
-        localStorage.removeItem("user");
       }
     }
     return null;
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("current_user", JSON.stringify(user));
     } else {
-      localStorage.removeItem("user");
+      localStorage.removeItem("current_user");
       localStorage.removeItem("jwt_token");
     }
   }, [user]);
 
-  const getUsers = () =>
-    JSON.parse(localStorage.getItem("users") || "[]");
+  const register = async ({ name, email, password }) => {
+  setLoading(true);
+  setError(null);
+  
+  try {
+    console.log("🔍 Sending registration request to:", `${API_BASE_URL}/auth/register`);
+    console.log("📤 Request body:", { name, email, password: "***" });
+    
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password })
+    });
 
-  const saveUsers = (users) =>
-    localStorage.setItem("users", JSON.stringify(users));
+    console.log("📥 Response status:", response.status);
+    const data = await response.json();
+    console.log("📥 Response data:", data);
 
-  const register = async ({ name, email, password, role }) => {
-    const users = getUsers();
-
-    if (users.find((u) => u.email === email)) {
-      throw new Error("Email already registered");
+    if (!response.ok) {
+      throw new Error(data.error || "Registration failed");
     }
 
-    const newUser = { 
-      id: Date.now().toString(),
-      name, 
-      email, 
-      password, 
-      role: role || "user",
-      createdAt: new Date().toISOString()
-    };
+    console.log("✅ Storing JWT token:", data.token ? "Token received" : "No token");
+    console.log("✅ Storing user:", data.user);
     
-    saveUsers([...users, newUser]);
-    const { password: _, ...userWithoutPassword } = newUser;
-    const token = createToken({
-      userId: newUser.id,
-      email: newUser.email,
-      role: newUser.role,
-      name: newUser.name
-    });
-    
-    localStorage.setItem("jwt_token", token);
-    setUser(userWithoutPassword);
-    
-    return userWithoutPassword;
-  };
+    localStorage.setItem("jwt_token", data.token);
+    localStorage.setItem("current_user", JSON.stringify(data.user));
+    setUser(data.user);
 
-
+    return data.user;
+  } catch (error) {
+    console.error("❌ Registration catch error:", error);
+    setError(error.message);
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
   const login = async ({ email, password }) => {
-    const users = getUsers();
-    const foundUser = users.find(
-      (u) => u.email === email && u.password === password
-    );
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
-    if (!foundUser) {
-      throw new Error("Invalid email or password");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Invalid email or password");
+      }
+
+      localStorage.setItem("jwt_token", data.token);
+      localStorage.setItem("current_user", JSON.stringify(data.user));
+      setUser(data.user);
+
+      return data.user;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
     }
-
-    const { password: _, ...userWithoutPassword } = foundUser;
-    
-    const token = createToken({
-      userId: foundUser.id,
-      email: foundUser.email,
-      role: foundUser.role,
-      name: foundUser.name
-    });
-    
-    localStorage.setItem("jwt_token", token);
-    setUser(userWithoutPassword);
-
-    return userWithoutPassword;
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("jwt_token");
+  const logout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        headers: getAuthHeader()
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem("current_user");
+      localStorage.removeItem("jwt_token");
+    }
   };
 
-   
-  const isAuthenticated = () => {
+  const validateToken = async () => {
     const token = localStorage.getItem("jwt_token");
     if (!token) return false;
-    
-    const decoded = verifyToken(token);
-    return decoded !== null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+      });
+
+      const data = await response.json();
+      return data.valid === true;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const fetchCurrentUser = async () => {
+    const token = localStorage.getItem("jwt_token");
+    if (!token) return null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/me`, {
+        method: "GET",
+        headers: getAuthHeader(),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setUser(data.user);
+          localStorage.setItem("current_user", JSON.stringify(data.user));
+          return data.user;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+    }
+    return null;
+  };
+
+  // ✅ Better: Keep as functions for real-time updates
+  const isAuthenticated = () => {
+    const token = localStorage.getItem("jwt_token");
+    return !!token && !!user;
   };
 
   const isAdmin = () => {
-    const token = localStorage.getItem("jwt_token");
-    if (!token) return false;
-    
-    const decoded = verifyToken(token);
-    return decoded && decoded.role === "admin";
+    return user && user.role === "admin";
   };
 
   const getAuthHeader = () => {
@@ -154,25 +173,115 @@ export default function AuthProvider({ children }) {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-
   const getToken = () => {
     return localStorage.getItem("jwt_token");
   };
 
+  const clearError = () => {
+    setError(null);
+  };
+
+  const fetchAdminStats = async () => {
+    if (!isAdmin()) {
+      throw new Error("Admin access required");
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/stats`, {
+        method: "GET",
+        headers: getAuthHeader(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch admin stats");
+      }
+
+      return data.stats;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const fetchAdminProducts = async () => {
+    if (!isAdmin()) {
+      throw new Error("Admin access required");
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/products`, {
+        method: "GET",
+        headers: getAuthHeader(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch admin products");
+      }
+
+      return data.products;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    if (!isAdmin()) {
+      throw new Error("Admin access required");
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/users`, {
+        method: "GET",
+        headers: getAuthHeader(),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch users");
+      }
+
+      return data.users;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("jwt_token");
+      if (token && !user) {
+        await fetchCurrentUser();
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const value = {
+    user,
+    loading,
+    error,
+    isAuthenticated: isAuthenticated(), // Returns boolean
+    isAdmin: isAdmin(),                 // Returns boolean
+    register,
+    login,
+    logout,
+    getAuthHeader,
+    getToken,
+    validateToken,
+    fetchCurrentUser,
+    fetchAdminStats,
+    fetchAdminProducts,
+    fetchAllUsers,
+    clearError,
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: isAuthenticated(),
-        isAdmin: isAdmin(),
-        loading,
-        login,
-        register,
-        logout,
-        getAuthHeader,
-        getToken
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

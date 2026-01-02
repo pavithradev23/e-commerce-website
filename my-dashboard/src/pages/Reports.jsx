@@ -5,8 +5,9 @@ import ProductForm from "../components/ProductForm";
 import Undo from "../components/Undo";
 import { useShop } from "../context/ShopContext";
 
+import { useProducts } from "../context/ProductsContext";
+
 import {
-  getProducts as apiGet,
   createProduct as apiCreate,
   updateProduct as apiUpdate,
   deleteProduct as apiDelete,
@@ -18,14 +19,11 @@ export default function Reports() {
   const { searchTerm } = useShop();   
   const categoryParam = params?.category;
   const categorySlug = categoryParam || searchParams.get("category") || "all";
-  
-  console.log("Category from URL:", categoryParam);
-  console.log("Final category slug:", categorySlug);
 
-  const [products, setProducts] = useState([]);
+  const { products, loading, refreshProducts } = useProducts();
+  
   const [visibleProducts, setVisibleProducts] = useState([]);
   const [editing, setEditing] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [pendingDeletes, setPendingDeletes] = useState([]);
   const [page, setPage] = useState(1);
   const [viewProduct, setViewProduct] = useState(null);
@@ -33,33 +31,11 @@ export default function Reports() {
   const perPage = 8;
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const data = await apiGet();
-        setProducts(data || []);
-        console.log("Loaded products:", data?.length || 0);
-        console.log("Unique categories in products:", [...new Set(data?.map(p => p.category) || [])]);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
     let list = [...products];
 
     const lowerCategory = (categorySlug || "all").toLowerCase().trim();
     
-    console.log(`Filtering by category: "${lowerCategory}"`);
-    console.log("Total products available:", list.length);
-
-
     if (lowerCategory !== "all") {
-      const originalCount = list.length;
-      
       const categoryMapping = {
         'electronics': ['electronics', 'electronic', 'tech', 'technology'],
         'jewelery': ['jewelery', 'jewelry', 'jewellery', 'accessories'],
@@ -70,51 +46,31 @@ export default function Reports() {
       list = list.filter((product) => {
         const productCategory = (product.category || "").toLowerCase().trim();
         
-        if (productCategory === lowerCategory) {
-          console.log(`Exact match: ${product.title} -> ${productCategory}`);
-          return true;
-        }
-       
-        if (productCategory.includes(lowerCategory)) {
-          console.log(`Includes match: ${product.title} -> ${productCategory} includes ${lowerCategory}`);
-          return true;
-        }
+        if (productCategory === lowerCategory) return true;
+        if (productCategory.includes(lowerCategory)) return true;
+        if (lowerCategory.includes(productCategory)) return true;
         
-        if (lowerCategory.includes(productCategory)) {
-          console.log(`Reverse includes: ${lowerCategory} includes ${productCategory}`);
-          return true;
-        }
         if (categoryMapping[lowerCategory]) {
-          const hasMatch = categoryMapping[lowerCategory].some(variation => 
+          return categoryMapping[lowerCategory].some(variation => 
             productCategory.includes(variation) || variation.includes(productCategory)
           );
-          if (hasMatch) {
-            console.log(`Category variation match: ${product.title} -> ${productCategory} matches ${lowerCategory}`);
-            return true;
-          }
         }
         
         return false;
       });
-      
-      console.log(`Filtered products: ${originalCount} -> ${list.length}`);
     }
 
- 
     if (searchTerm && searchTerm.trim() !== "") {
-      const beforeSearch = list.length;
       const searchLower = searchTerm.toLowerCase().trim();
       list = list.filter((p) =>
         (p.title || "").toLowerCase().includes(searchLower) ||
         (p.description || "").toLowerCase().includes(searchLower) ||
         (p.category || "").toLowerCase().includes(searchLower)
       );
-      console.log(`After search "${searchTerm}": ${beforeSearch} -> ${list.length}`);
     }
 
-    console.log("Final visible products:", list.length);
     setVisibleProducts(list);
-    setPage(1); 
+    setPage(1);
   }, [products, categorySlug, searchTerm]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / perPage));
@@ -125,19 +81,14 @@ export default function Reports() {
     if (editing && editing.id) {
       try {
         await apiUpdate(editing.id, payload);
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.id === editing.id ? { ...p, ...payload } : p
-          )
-        );
+        refreshProducts(); 
       } catch (err) {
         console.error(err);
       }
     } else if (editing) {
       try {
-        const created = await apiCreate(payload);
-        const item = created?.id ? created : { id: Date.now(), ...payload };
-        setProducts((prev) => [item, ...prev]);
+        await apiCreate(payload);
+        refreshProducts(); 
       } catch (err) {
         console.error(err);
       }
@@ -150,8 +101,6 @@ export default function Reports() {
     const item = products.find((p) => p.id === id);
     if (!item) return;
 
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-
     setPendingDeletes((prev) => [
       ...prev,
       { id, item, expiresAt: Date.now() + 7000 },
@@ -160,9 +109,9 @@ export default function Reports() {
     setTimeout(async () => {
       try {
         await apiDelete(id);
+        refreshProducts(); 
       } catch (err) {
         console.error(err);
-        setProducts((prev) => [item, ...prev]);
       }
 
       setPendingDeletes((prev) => prev.filter((x) => x.id !== id));
@@ -173,10 +122,8 @@ export default function Reports() {
     const entry = pendingDeletes.find((x) => x.id === id);
     if (!entry) return;
 
-    setProducts((prev) => [entry.item, ...prev]);
     setPendingDeletes((prev) => prev.filter((x) => x.id !== id));
   };
-
 
   const formatCategoryName = (slug) => {
     if (slug === "all") return "All Products";
@@ -205,8 +152,25 @@ export default function Reports() {
           Store — {formatCategoryName(categorySlug)}
           {visibleProducts.length > 0 && ` (${visibleProducts.length} products)`}
         </h2>
+        
+        <button
+          onClick={refreshProducts}
+          disabled={loading}
+          style={{
+            padding: '8px 16px',
+            background: loading ? '#ccc' : '#6366f1',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          {loading ? 'Loading...' : 'Refresh Products'}
+        </button>
       </div>
 
+    
       <div className={`product-form-container ${editing ? "show" : ""}`}>
         {editing && (
           <ProductForm
@@ -218,7 +182,7 @@ export default function Reports() {
       </div>
 
       {loading ? (
-        <div>Loading…</div>
+        <div>Loading...</div>
       ) : (
         <>
           {categorySlug !== "all" && (

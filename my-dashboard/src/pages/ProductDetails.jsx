@@ -33,7 +33,6 @@ export default function ProductDetails() {
   const isWishlisted = wishlist.some((p) => p.id === product.id);
 
   const handleAddToCart = () => {
-    // Add multiple quantity
     for (let i = 0; i < quantity; i++) {
       addToCart(product);
     }
@@ -49,7 +48,6 @@ export default function ProductDetails() {
 
   return (
     <div style={styles.container}>
-      {/* Breadcrumb Navigation */}
       <div style={styles.breadcrumb}>
         <span 
           style={styles.breadcrumbLink}
@@ -68,9 +66,8 @@ export default function ProductDetails() {
         <span style={styles.breadcrumbCurrent}>{product.title}</span>
       </div>
 
-      {/* Product Details Card */}
       <div style={styles.productCard}>
-        {/* Close Button */}
+   
         <button
           onClick={() => navigate(-1)}
           style={styles.closeButton}
@@ -78,9 +75,9 @@ export default function ProductDetails() {
           ✕
         </button>
 
-        {/* Product Content */}
+     
         <div style={styles.productContent}>
-          {/* Image Section */}
+         
           <div style={styles.imageSection}>
             <img
               src={product.image}
@@ -93,7 +90,7 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Details Section */}
+
           <div style={styles.detailsSection}>
             <span style={styles.category}>{product.category.toUpperCase()}</span>
             <h1 style={styles.title}>{product.title}</h1>
@@ -108,7 +105,7 @@ export default function ProductDetails() {
               <span style={styles.taxText}>+ applicable taxes</span>
             </div>
 
-            {/* Quantity Selector */}
+   
             <div style={styles.quantitySection}>
               <label style={styles.quantityLabel}>Quantity:</label>
               <div style={styles.quantityControls}>
@@ -129,13 +126,13 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            {/* Product Description */}
+           
             <div style={styles.descriptionSection}>
               <h3 style={styles.sectionTitle}>Description</h3>
               <p style={styles.description}>{product.description}</p>
             </div>
 
-            {/* Action Buttons */}
+           
             <div style={styles.actionButtons}>
               <button 
                 style={styles.addToCartButton}
@@ -167,7 +164,7 @@ export default function ProductDetails() {
               </button>
             </div>
 
-            {/* Product Features */}
+       
             <div style={styles.features}>
               <div style={styles.featureItem}>
                 <span style={styles.featureIcon}>🚚</span>
@@ -195,11 +192,11 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* Related Products Section */}
+
       <div style={styles.relatedSection}>
         <h2 style={styles.relatedTitle}>You May Also Like</h2>
         <div style={styles.relatedGrid}>
-          {/* This would be populated with related products */}
+          
           <div style={styles.relatedPlaceholder}>
             <p>More products in <strong>{product.category}</strong></p>
             <button 
@@ -215,7 +212,7 @@ export default function ProductDetails() {
   );
 }
 
-// Styles
+
 const styles = {
   container: {
     padding: '20px',
