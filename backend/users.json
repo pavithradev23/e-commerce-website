@@ -1,11 +1,20 @@
 [
   {
-    "id": "e06350e1-71a9-48f6-a6a4-4280c01b5148",
+    "id": "4c20d67d-0d5b-43df-99cb-1f204e151cd2",
+    "name": "Admin",
+    "email": "admin@gmail.com",
+    "password": "e86f78a8a3caf0b60d8e74e5942aa6d86dc150cd3c03338aef25b7d2d7e3acc7",
+    "role": "admin",
+    "created_at": "2026-01-03T06:03:31.196139",
+    "last_login": "2026-01-03T06:06:34.979095"
+  },
+  {
+    "id": "4069fe05-5698-48e2-8a38-345dcabad04c",
     "name": "User",
     "email": "user@gmail.com",
     "password": "3e7c19576488862816f13b512cacf3e4ba97dd97243ea0bd6a2ad1642d86ba72",
     "role": "user",
-    "created_at": "2026-01-02T11:18:57.010486",
-    "last_login": "2026-01-02T11:18:57.010496"
+    "created_at": "2026-01-03T06:05:02.365436",
+    "last_login": "2026-01-03T06:05:30.972663"
   }
 ]

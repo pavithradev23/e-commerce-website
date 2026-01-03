@@ -29,16 +29,17 @@ def load_users():
         with open(USERS_FILE,'r') as f:
             users=json.load(f)
 
+        fixed = False  # ✅ FIXED: Initialize variable
         for user in users:
-         if user['email']!='admin@gmail.com' and user['role']=='admin':
-             user['role']='user'
-             print(f"Security fix:Downgraded {user['email']} from admin to user")
-             fixed=True
+            if user['email']!='admin@gmail.com' and user['role']=='admin':
+                user['role']='user'
+                print(f"Security fix:Downgraded {user['email']} from admin to user")
+                fixed=True
 
-         if fixed:
-             save_users(user)
+        if fixed:
+            save_users(users)  # ✅ FIXED: Pass 'users' not 'user'
 
-         return users
+        return users  # ✅ FIXED: Proper indentation
          
     except FileNotFoundError:
         default_users = [
@@ -341,9 +342,9 @@ def search_products():
    
     filtered=[]
     for prod in products:
-     if search_query in prod['title'].lower():
-         filtered.append(prod) 
-         return jsonify (filtered)
+        if search_query in prod['title'].lower():
+            filtered.append(prod) 
+    return jsonify(filtered)  # ✅ FIXED: Return outside the loop
 
 def detect_greeting_or_general(message):
     message_lower = message.lower().strip()
