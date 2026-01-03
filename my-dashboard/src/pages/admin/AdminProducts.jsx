@@ -1,14 +1,17 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "../admin/AdminProducts.css";
+import { useProducts } from "../../context/ProductsContext"; // Import the context
 
 const PRODUCTS_PER_PAGE = 6;
 
 export default function AdminProducts() {
-  const hasFetched = useRef(false);
+  // Use the ProductsContext instead of local fetching
+  const { products: contextProducts, loading } = useProducts();
+  
+  // Local state for UI and admin operations
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -29,59 +32,54 @@ export default function AdminProducts() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
+  // Load data from context ONCE when it's available
   useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
-    
-    console.log("Fetching products...");
-    const fetchAllProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("https://fakestoreapi.com/products");
-        const data = await response.json();
-        console.log("Fetched products:", data.length);
-        const enriched = data.map((product) => ({
-          ...product,
-          stock: Math.floor(Math.random() * 50) + 10,
-          status: "Active",
-        }));
-        setAllProducts(enriched);
-        setFilteredProducts(enriched);
-        setTotalPages(Math.ceil(enriched.length / PRODUCTS_PER_PAGE));
-        updateCurrentPageProducts(enriched, 1);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-        setIsInitialLoad(false);
-      }
-    };
-    fetchAllProducts();
-  }, []);
+    if (contextProducts.length > 0 && allProducts.length === 0) {
+      console.log("📥 Loading products from context:", contextProducts.length);
+      
+      // Enrich context products with admin-specific fields
+      const enriched = contextProducts.map((product) => ({
+        ...product,
+        stock: product.stock || Math.floor(Math.random() * 50) + 10,
+        status: product.status || "Active",
+      }));
+      
+      setAllProducts(enriched);
+      setFilteredProducts(enriched);
+      setTotalPages(Math.ceil(enriched.length / PRODUCTS_PER_PAGE));
+      updateCurrentPageProducts(enriched, 1);
+      setIsInitialLoad(false);
+    }
+  }, [contextProducts, allProducts.length]); // Only depends on contextProducts
 
   const updateCurrentPageProducts = useCallback((productList, page) => {
     const startIndex = (page - 1) * PRODUCTS_PER_PAGE;
     const endIndex = startIndex + PRODUCTS_PER_PAGE;
     const currentProducts = productList.slice(startIndex, endIndex);
     setProducts(currentProducts);
-  }, []);
+  }, []); 
 
+  // Filter products when search or category changes
   useEffect(() => {
     let result = [...allProducts];
+    
     if (search.trim()) {
       result = result.filter((product) =>
         product.title.toLowerCase().includes(search.toLowerCase().trim())
       );
     }
+    
     if (categoryFilter !== "all") {
       result = result.filter((product) => product.category === categoryFilter);
     }
+    
     setFilteredProducts(result);
     setTotalPages(Math.ceil(result.length / PRODUCTS_PER_PAGE));
     setCurrentPage(1);
     updateCurrentPageProducts(result, 1);
   }, [search, categoryFilter, allProducts, updateCurrentPageProducts]);
 
+  // Update current page when page changes
   useEffect(() => {
     if (!isInitialLoad && filteredProducts.length > 0) {
       updateCurrentPageProducts(filteredProducts, currentPage);
@@ -93,6 +91,7 @@ export default function AdminProducts() {
   const endIndex = Math.min(currentPage * PRODUCTS_PER_PAGE, totalFilteredProducts);
   const showingStart = totalFilteredProducts > 0 ? startIndex + 1 : 0;
 
+  // ALL YOUR ORIGINAL HANDLERS - NO CHANGES NEEDED
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -262,7 +261,8 @@ export default function AdminProducts() {
     return pages;
   };
 
-  if (loading && isInitialLoad) {
+  // Use context loading state
+  if (loading && allProducts.length === 0) {
     return (
       <div className="loading-container">
         <p className="loading">Loading products...</p>
