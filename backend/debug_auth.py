@@ -9,15 +9,14 @@ def hash_password(password):
 def diagnose():
     print("🔍 DIAGNOSING AUTHENTICATION ISSUE")
     print("=" * 60)
-    
-    # 1. Check what's in users.json
+  
     try:
         with open('users.json', 'r') as f:
             users = json.load(f)
         print(f"✅ users.json loaded successfully")
         print(f"   Contains {len(users)} user(s)")
         
-        # Find admin user
+    
         admin_users = [u for u in users if u.get('email') == 'admin@gmail.com']
         if admin_users:
             admin = admin_users[0]
@@ -27,7 +26,6 @@ def diagnose():
             print(f"   Role: {admin.get('role')}")
             print(f"   Password hash in DB: {admin.get('password')}")
             
-            # Calculate what the hash should be
             expected_hash = hash_password('admin123')
             print(f"   Expected hash for 'admin123': {expected_hash}")
             print(f"   Hashes match: {admin.get('password') == expected_hash}")
@@ -39,7 +37,6 @@ def diagnose():
                 print(f"   2. The hashing algorithm changed")
                 print(f"   3. The user was created with a different password")
                 
-                # Try common variations
                 test_passwords = ['admin123', 'Admin123', 'ADMIN123', 'admin', 'admin@123']
                 print(f"\n🔑 Testing common password variations:")
                 for pwd in test_passwords:
