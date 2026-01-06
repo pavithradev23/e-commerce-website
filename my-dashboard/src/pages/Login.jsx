@@ -15,7 +15,6 @@ export default function Login() {
   const { login, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // ✅ ADD THIS: Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       const redirectPath = localStorage.getItem("redirectAfterLogin") || "/";
@@ -117,7 +116,6 @@ export default function Login() {
         password: formData.password
       });
       
-      // ✅ Check if login was successful
       if (!loggedInUser) {
         throw new Error("Login failed - no user returned");
       }
@@ -130,7 +128,6 @@ export default function Login() {
       const redirectPath = localStorage.getItem("redirectAfterLogin");
       localStorage.removeItem("redirectAfterLogin");
 
-      // ✅ Redirect based on role
       if (loggedInUser.role === "admin") {
         if (redirectPath && redirectPath.includes("/admin")) {
           navigate(redirectPath);
@@ -160,7 +157,7 @@ export default function Login() {
     );
   };
 
-  // ✅ Show loading while checking authentication
+
   if (authLoading) {
     return (
       <main className="auth-page">
@@ -174,9 +171,9 @@ export default function Login() {
     );
   }
 
-  // ✅ Don't render login form if already authenticated
+
   if (isAuthenticated) {
-    return null; // Will redirect via useEffect
+    return null; 
   }
 
   return (
